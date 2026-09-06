@@ -1,0 +1,30 @@
+{
+  "name": "rift-impostor",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Social deduction game with League of Legends champions. One phone, passed around. English and Spanish.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "champions": "node scripts/fetch-champions.mjs",
+    "serve:out": "node scripts/serve-out.mjs 4321",
+    "test:e2e": "node scripts/e2e.mjs",
+    "audit": "node scripts/audit.mjs",
+    "shots": "node scripts/audit.mjs --shots",
+    "test:logic": "node --experimental-strip-types scripts/test-logic.mjs"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "next": "^16.3.4",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "playwright": "^1.63.0",
+    "typescript": "^5.7.2"
+  }
+}

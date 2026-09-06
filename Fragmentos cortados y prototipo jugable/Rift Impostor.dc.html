@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:oklch(0.93 0.008 265); font-family:'Work Sans',system-ui,sans-serif; }
+  a { color:oklch(0.45 0.13 265); text-decoration:underline; text-underline-offset:2px; }
+  a:hover { color:oklch(0.32 0.11 265); }
+  @keyframes riftBreathe { 0%,100% { transform:scale(1); opacity:.55 } 50% { transform:scale(1.09); opacity:.9 } }
+  @keyframes riftRise { from { transform:translateY(14px); opacity:0 } to { transform:translateY(0); opacity:1 } }
+  @keyframes riftWipe { from { clip-path:inset(0 0 100% 0) } to { clip-path:inset(0 0 0 0) } }
+  @keyframes riftSlam { 0% { transform:scale(1.3); opacity:0 } 55% { transform:scale(0.97); opacity:1 } 100% { transform:scale(1); opacity:1 } }
+  @keyframes riftSweep { from { transform:translateX(-120%) } to { transform:translateX(320%) } }
+  @keyframes riftTick { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-3px) } }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+  }
+</style>
+</helmet>
+
+<div style="padding:64px 56px 120px; color:oklch(0.24 0.02 265); display:flex; flex-direction:column; gap:64px">
+
+  <header style="display:flex; flex-direction:column; gap:28px; max-width:1180px">
+    <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap">
+      <h1 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:58px; line-height:.95; letter-spacing:-.02em; text-transform:uppercase">Rift Impostor</h1>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:oklch(0.5 0.02 265)">Dirección visual + 10 pantallas · 390×844</span>
+    </div>
+    <p style="margin:0; max-width:66ch; font-size:17px; line-height:1.55; color:oklch(0.38 0.02 265); text-wrap:pretty">Un solo celular a oscuras, a la una de la mañana. La pantalla es oscura por función, no por género: a esa hora una pantalla blanca ilumina la cara del que la mira y la lee el sillón de enfrente. Todo lo demás rompe con el molde gamer: tipografía editorial ancha, una sola brasa ámbar para la acción, cero glow, cero degradés violetas.</p>
+
+    <div style="display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start">
+      <div style="display:flex; flex-direction:column; gap:10px">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.55 0.02 265)">Paleta</span>
+        <div style="display:flex; gap:8px">
+          <div style="width:58px; height:58px; border-radius:8px; background:oklch(0.18 0.022 264)"></div>
+          <div style="width:58px; height:58px; border-radius:8px; background:oklch(0.24 0.026 264)"></div>
+          <div style="width:58px; height:58px; border-radius:8px; background:oklch(0.36 0.03 264)"></div>
+          <div style="width:58px; height:58px; border-radius:8px; background:oklch(0.80 0.14 80)"></div>
+          <div style="width:58px; height:58px; border-radius:8px; background:oklch(0.80 0.14 158)"></div>
+          <div style="width:58px; height:58px; border-radius:8px; background:oklch(0.96 0.008 264); border:1px solid oklch(0.85 0.01 265)"></div>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:oklch(0.55 0.02 265)">tinta · superficie · línea · brasa · menta · papel</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.55 0.02 265)">Tipografía</span>
+        <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:30px; text-transform:uppercase; letter-spacing:-.01em; line-height:1">Archivo Expanded 800</span>
+        <span style="font-size:16px; line-height:1.4">Work Sans 400/500/600 — cuerpo y botones</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:13px">IBM Plex Mono — metadatos y puntajes</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; max-width:300px">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.55 0.02 265)">Espaciado y toque</span>
+        <span style="font-size:15px; line-height:1.5; color:oklch(0.38 0.02 265)">Escala de 4: 8 / 12 / 16 / 24 / 32 / 48. Márgenes laterales de 20. Ningún objetivo táctil por debajo de 56 de alto; el primario mide 64 y vive pegado al borde inferior, donde llega el pulgar de quien sostiene el celular en el aire.</span>
+      </div>
+    </div>
+  </header>
+
+  <div style="display:flex; flex-wrap:wrap; gap:56px 40px">
+
+    <!-- 01 SETUP -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">01</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Setup</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:04</span><span>▮▮▮ ▲ 61%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; border-bottom:1px solid oklch(0.3 0.028 264)">
+          <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:17px; text-transform:uppercase; letter-spacing:.01em">Rift Impostor</span>
+          <div style="display:flex; gap:18px; font-size:14px; color:oklch(0.72 0.02 264)"><span style="color:oklch(0.96 0.008 264); font-weight:500">Jugar</span><span>Reglas</span><span>Tabla</span></div>
+        </div>
+        <div style="flex:1; min-height:0; overflow-y:auto; padding:22px 20px 0; display:flex; flex-direction:column; gap:18px">
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:34px; line-height:.96; letter-spacing:-.02em; text-transform:uppercase">Todos ven<br>el mismo<br>campeón</h2>
+            <p style="margin:0; font-size:16px; line-height:1.45; color:oklch(0.78 0.02 264); max-width:32ch; text-wrap:pretty">Menos uno. Ese uno tiene que fingir que lo ve.</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <div style="display:flex; justify-content:space-between; align-items:baseline">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Jugadores</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)">5 / 10</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px">
+              <div style="height:56px; border-radius:12px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); display:flex; align-items:center; padding:0 8px 0 16px; gap:12px">
+                <span style="flex:1; font-size:17px; font-weight:500">Nico</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:oklch(0.66 0.02 264)">4/16</span>
+                <button style="width:44px; height:44px; border:0; background:transparent; color:oklch(0.72 0.02 264); font-size:20px; border-radius:10px; cursor:pointer" style-hover="background:oklch(0.3 0.028 264)">×</button>
+              </div>
+              <div style="height:56px; border-radius:12px; background:oklch(0.24 0.026 264); border:2px solid oklch(0.80 0.14 80); display:flex; align-items:center; padding:0 8px 0 16px; gap:12px">
+                <span style="flex:1; font-size:17px; font-weight:500">Cami<span style="display:inline-block; width:2px; height:20px; margin-left:2px; vertical-align:-3px; background:oklch(0.80 0.14 80); animation:riftBreathe 1.1s ease-in-out infinite"></span></span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:oklch(0.80 0.14 80)">4/16</span>
+                <button style="width:44px; height:44px; border:0; background:transparent; color:oklch(0.72 0.02 264); font-size:20px; border-radius:10px; cursor:pointer">×</button>
+              </div>
+              <div style="height:56px; border-radius:12px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); display:flex; align-items:center; padding:0 8px 0 16px; gap:12px">
+                <span style="flex:1; font-size:17px; font-weight:500">Tomi</span>
+                <button style="width:44px; height:44px; border:0; background:transparent; color:oklch(0.72 0.02 264); font-size:20px; border-radius:10px; cursor:pointer">×</button>
+              </div>
+              <div style="height:56px; border-radius:12px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); display:flex; align-items:center; padding:0 8px 0 16px; gap:12px">
+                <span style="flex:1; font-size:17px; font-weight:500">Juli</span>
+                <button style="width:44px; height:44px; border:0; background:transparent; color:oklch(0.72 0.02 264); font-size:20px; border-radius:10px; cursor:pointer">×</button>
+              </div>
+              <button style="height:56px; border-radius:12px; background:transparent; border:1px dashed oklch(0.42 0.03 264); color:oklch(0.82 0.02 264); font-family:'Work Sans',sans-serif; font-size:16px; font-weight:500; text-align:left; padding:0 16px; cursor:pointer" style-hover="border-color:oklch(0.80 0.14 80); color:oklch(0.80 0.14 80)">+ Agregar jugador</button>
+            </div>
+          </div>
+          <div style="display:flex; gap:16px; align-items:flex-start; padding:14px; border-radius:14px; background:oklch(0.22 0.024 264); border:1px solid oklch(0.3 0.028 264)">
+            <div style="flex:1; display:flex; flex-direction:column; gap:6px">
+              <span style="font-size:16px; font-weight:600">Decirle la clase al impostor</span>
+              <span style="font-size:14px; line-height:1.4; color:oklch(0.76 0.02 264); text-wrap:pretty">Va a saber que es un mago.<br>Más fácil para él, más difícil para ustedes.</span>
+            </div>
+            <div style="width:60px; height:34px; flex:none; border-radius:17px; background:oklch(0.80 0.14 80); position:relative; margin-top:2px; cursor:pointer">
+              <div style="position:absolute; top:3px; left:29px; width:28px; height:28px; border-radius:14px; background:oklch(0.18 0.022 264); transition:left .18s ease"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 20px 28px">
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:19px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer; position:relative; overflow:hidden" style-hover="background:oklch(0.85 0.14 80)">
+            Repartir cartas
+            <span style="position:absolute; inset:0; width:28%; background:linear-gradient(90deg, transparent, oklch(1 0 0 / .35), transparent); animation:riftSweep 3.4s ease-in-out infinite"></span>
+          </button>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">El contador 4/16 aparece solo en la fila en edición. El texto de apoyo del switch tiene dos líneas fijas en los dos estados, así el bloque no salta al togglear ni al pasar a inglés.</p></sc-if>
+    </div>
+
+    <!-- 02 PASAR EL CELULAR -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">02</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Pasar el celular</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:06</span><span>▮▮▮ ▲ 60%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:center; padding:0 20px; border-bottom:1px solid oklch(0.3 0.028 264); position:relative">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Carta 3 de 5</span>
+          <div style="position:absolute; left:20px; right:20px; bottom:-1px; height:2px; background:oklch(0.3 0.028 264)"><div style="width:60%; height:2px; background:oklch(0.80 0.14 80)"></div></div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; padding:0 20px">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Le toca a</span>
+          <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:72px; line-height:.9; letter-spacing:-.03em; text-align:center; text-transform:uppercase; animation:riftRise .45s cubic-bezier(.2,.8,.2,1) both">Tomi</h2>
+          <p style="margin:0; font-size:17px; line-height:1.5; text-align:center; color:oklch(0.78 0.02 264); max-width:26ch; text-wrap:pretty">Tomá el celular. Que nadie más mire la pantalla mientras la abrís.</p>
+        </div>
+        <div style="padding:0 20px 40px; display:flex; flex-direction:column; align-items:center; gap:20px">
+          <div style="position:relative; width:100%; display:flex; justify-content:center">
+            <div style="position:absolute; top:-6px; left:50%; transform:translateX(-50%); width:100%; height:76px; border-radius:22px; background:oklch(0.80 0.14 80 / .18); animation:riftBreathe 2.6s ease-in-out infinite"></div>
+            <button style="position:relative; width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:19px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Ver mi carta</button>
+          </div>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.62 0.02 264)">Faltan Juli y Fer</span>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">La imagen del campeón se precarga acá, detrás de un fondo opaco y sin ningún skeleton visible. Nunca hay un estado de carga que insinúe la carta.</p></sc-if>
+    </div>
+
+    <!-- 03 CARTA INOCENTE -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">03</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Carta — inocente</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:06</span><span>▮▮▮ ▲ 60%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:center; border-bottom:1px solid oklch(0.3 0.028 264)">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Tomi · Carta 3 de 5</span>
+        </div>
+        <div style="flex:1; padding:20px 20px 0; display:flex; flex-direction:column; align-items:center; gap:16px">
+          <div style="width:308px; height:560px; flex:none; border-radius:18px; overflow:hidden; background:oklch(0.24 0.026 264); border:1px solid oklch(0.36 0.03 264); position:relative; animation:riftRise .4s cubic-bezier(.2,.8,.2,1) both">
+            <sc-if value="{{ portrait }}"><img src="{{ portrait }}" alt="" style="width:100%; height:100%; object-fit:cover; object-position:top center; display:block" /></sc-if>
+            <div style="position:absolute; inset:auto 0 0 0; height:180px; background:linear-gradient(to top, oklch(0.18 0.022 264) 12%, transparent)"></div>
+            <div style="position:absolute; left:20px; right:20px; bottom:20px; display:flex; flex-direction:column; gap:4px">
+              <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:38px; line-height:1; letter-spacing:-.02em; text-transform:uppercase">{{ champName }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.85 0.01 264)">{{ champRegion }}</span>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 20px 28px; display:flex; flex-direction:column; gap:12px">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; text-align:center; color:oklch(0.62 0.02 264)">Tapá la pantalla con la mano</span>
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:18px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Ocultar y pasar a Juli</button>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">Retrato 308×560 sin recortar: entra tal cual viene de la CDN. El nombre va dentro del bloque, sobre un degradé a tinta plena: la silueta de la carta es un solo rectángulo cerrado, igual que la del impostor.</p></sc-if>
+    </div>
+
+    <!-- 04 CARTA IMPOSTOR -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">04</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Carta — impostor</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:07</span><span>▮▮▮ ▲ 60%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:center; border-bottom:1px solid oklch(0.3 0.028 264)">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Juli · Carta 4 de 5</span>
+        </div>
+        <div style="flex:1; padding:20px 20px 0; display:flex; flex-direction:column; align-items:center; gap:16px">
+          <div style="width:308px; height:560px; flex:none; border-radius:18px; overflow:hidden; background:oklch(0.24 0.026 264); border:1px solid oklch(0.36 0.03 264); position:relative; display:flex; flex-direction:column; animation:riftRise .4s cubic-bezier(.2,.8,.2,1) both">
+            <div style="position:absolute; inset:0; background-image:repeating-linear-gradient(115deg, oklch(0.28 0.028 264) 0 1px, transparent 1px 9px)"></div>
+            <div style="position:absolute; inset:auto 0 0 0; height:340px; background:linear-gradient(to top, oklch(0.18 0.022 264) 30%, oklch(0.18 0.022 264 / .55) 70%, transparent)"></div>
+            <div style="position:relative; padding:22px 24px 0; display:flex; align-items:center; gap:10px">
+              <span style="color:oklch(0.80 0.14 80); font-size:11px">◆</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:oklch(0.80 0.14 80)">Vos no viste nada</span>
+              <span style="flex:1; height:1px; background:oklch(0.42 0.03 264)"></span>
+            </div>
+            <div style="position:relative; flex:1; display:flex; flex-direction:column; justify-content:flex-end; padding:0 24px 22px; gap:20px">
+              <div style="display:flex; flex-direction:column; gap:2px">
+                <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:34px; line-height:.92; letter-spacing:-.01em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Sos el</span>
+                <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:42px; line-height:.92; letter-spacing:-.02em; text-transform:uppercase; color:oklch(0.96 0.008 264); white-space:nowrap">Impostor</span>
+                <span style="margin-top:12px; width:56px; height:3px; background:oklch(0.80 0.14 80)"></span>
+              </div>
+              <sc-if value="{{ chip }}" hint-placeholder-val="{{ true }}">
+                <div style="border:1px solid oklch(0.80 0.14 80 / .55); border-radius:12px; padding:12px 14px; background:oklch(0.22 0.024 264 / .85); display:flex; flex-direction:column; gap:4px">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:oklch(0.80 0.14 80)">Tu única pista</span>
+                  <span style="font-size:17px; font-weight:600; line-height:1.25; color:oklch(0.96 0.008 264)">El campeón es un mago</span>
+                </div>
+              </sc-if>
+              <p style="margin:0; font-size:15px; line-height:1.5; color:oklch(0.88 0.012 264); text-wrap:pretty">Los demás están viendo a un campeón. Vos no. Cuando te toque, decí una palabra que suene creíble, escuchá lo que dicen los otros y armá la tuya con eso. Si nadie te vota, ganás la ronda.</p>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 20px 28px; display:flex; flex-direction:column; gap:12px">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; text-align:center; color:oklch(0.62 0.02 264)">Tapá la pantalla con la mano</span>
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:18px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Ocultar y pasar a Fer</button>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">Misma silueta exacta que la 03: rectángulo 308×560 y botón, sin nada colgando afuera. La pista de clase vive adentro, en el bloque ámbar: es información que solo existe para el impostor. La tensión no la carga el color —sería un delator— sino la escala tipográfica y el rayado, que a un metro se lee como textura de imagen. Ámbar solo en el botón, idéntico en las dos cartas.</p></sc-if>
+    </div>
+
+    <!-- 05 PISTAS -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">05</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Ronda de pistas</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:09</span><span>▮▮▮ ▲ 59%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:center; border-bottom:1px solid oklch(0.3 0.028 264)">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Ronda 3 · Pistas</span>
+        </div>
+        <div style="flex:1; min-height:0; overflow-y:auto; padding:24px 20px 0; display:flex; flex-direction:column; gap:18px">
+          <div style="display:flex; flex-direction:column; gap:10px">
+            <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:34px; line-height:.96; letter-spacing:-.02em; text-transform:uppercase">Una palabra<br>cada uno</h2>
+            <p style="margin:0; font-size:16px; line-height:1.45; color:oklch(0.78 0.02 264); max-width:34ch; text-wrap:pretty">En este orden y en voz alta. Nada de frases: una sola palabra sobre el campeón.</p>
+          </div>
+          <ol style="margin:0; padding:0; list-style:none; min-height:0; display:flex; flex-direction:column; gap:8px">
+            <li style="min-height:64px; border-radius:14px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); display:flex; align-items:center; gap:14px; padding:12px 18px">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:500; width:24px">1</span>
+              <div style="display:flex; flex-direction:column; gap:2px">
+                <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:22px; text-transform:uppercase; line-height:1">Cami</span>
+                <span style="font-size:13px; font-weight:500">Arranca — la posición más difícil</span>
+              </div>
+              <span style="margin-left:auto; font-size:22px; animation:riftTick 1.8s ease-in-out infinite">↓</span>
+            </li>
+            <li style="min-height:60px; border-radius:14px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); display:flex; align-items:center; gap:14px; padding:12px 18px">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:18px; color:oklch(0.72 0.02 264); width:24px">2</span>
+              <span style="font-size:19px; font-weight:500">Nico</span>
+            </li>
+            <li style="min-height:60px; border-radius:14px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); display:flex; align-items:center; gap:14px; padding:12px 18px">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:18px; color:oklch(0.72 0.02 264); width:24px">3</span>
+              <span style="font-size:19px; font-weight:500">Fer</span>
+            </li>
+            <li style="min-height:60px; border-radius:14px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); display:flex; align-items:center; gap:14px; padding:12px 18px">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:18px; color:oklch(0.72 0.02 264); width:24px">4</span>
+              <span style="font-size:19px; font-weight:500">Tomi</span>
+            </li>
+            <li style="min-height:60px; border-radius:14px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); display:flex; align-items:center; gap:14px; padding:12px 18px">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:18px; color:oklch(0.72 0.02 264); width:24px">5</span>
+              <span style="font-size:19px; font-weight:500">Juli</span>
+            </li>
+          </ol>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.5; color:oklch(0.62 0.02 264)">El orden se sortea de nuevo cada ronda</span>
+        </div>
+        <div style="padding:16px 20px 28px">
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:19px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Terminamos las pistas</button>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">Sin chip de clase: acá la pista ya no aplica. El primero es el único ítem con relleno ámbar y dos líneas: se ve desde el otro lado de la mesa quién arranca. Con 10 jugadores la lista scrollea y el botón queda fijo abajo.</p></sc-if>
+    </div>
+
+    <!-- 06 VOTACION -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">06</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Votación</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:13</span><span>▮▮▮ ▲ 58%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:center; border-bottom:1px solid oklch(0.3 0.028 264)">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Ronda 3 · Votación</span>
+        </div>
+        <div style="flex:1; min-height:0; overflow-y:auto; padding:24px 20px 0; display:flex; flex-direction:column; gap:18px">
+          <div style="display:flex; flex-direction:column; gap:10px">
+            <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:34px; line-height:.96; letter-spacing:-.02em; text-transform:uppercase">¿A quién<br>echamos?</h2>
+            <p style="margin:0; font-size:16px; line-height:1.45; color:oklch(0.78 0.02 264); max-width:34ch; text-wrap:pretty">Cuenten hasta tres y señalen. El que sostiene el celular marca al más señalado.</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <button style="min-height:68px; border-radius:14px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); color:oklch(0.96 0.008 264); display:flex; align-items:center; gap:14px; padding:10px 18px; font-family:'Work Sans',sans-serif; font-size:19px; font-weight:500; text-align:left; cursor:pointer" style-hover="border-color:oklch(0.80 0.14 80)">
+              <img src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Braum.png" alt="" style="width:44px; height:44px; border-radius:10px; display:block; filter:grayscale(1) brightness(.7)" />Cami
+            </button>
+            <button style="min-height:68px; border-radius:14px; background:oklch(0.24 0.026 264); border:2px solid oklch(0.80 0.14 80); box-shadow:inset 0 0 0 4px oklch(0.80 0.14 80 / .16); color:oklch(0.96 0.008 264); display:flex; align-items:center; gap:14px; padding:10px 18px; font-family:'Work Sans',sans-serif; font-size:19px; font-weight:600; text-align:left; cursor:pointer">
+              <img src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Jinx.png" alt="" style="width:44px; height:44px; border-radius:10px; display:block; filter:grayscale(1) brightness(.7)" />Nico
+              <span style="margin-left:auto; width:26px; height:26px; border-radius:13px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600">✓</span>
+            </button>
+            <button style="min-height:68px; border-radius:14px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); color:oklch(0.96 0.008 264); display:flex; align-items:center; gap:14px; padding:10px 18px; font-family:'Work Sans',sans-serif; font-size:19px; font-weight:500; text-align:left; cursor:pointer">
+              <img src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Sett.png" alt="" style="width:44px; height:44px; border-radius:10px; display:block; filter:grayscale(1) brightness(.7)" />Fer
+            </button>
+            <button style="min-height:68px; border-radius:14px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); color:oklch(0.96 0.008 264); display:flex; align-items:center; gap:14px; padding:10px 18px; font-family:'Work Sans',sans-serif; font-size:19px; font-weight:500; text-align:left; cursor:pointer">
+              <img src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Ekko.png" alt="" style="width:44px; height:44px; border-radius:10px; display:block; filter:grayscale(1) brightness(.7)" />Tomi
+            </button>
+            <button style="min-height:68px; border-radius:14px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.32 0.028 264); color:oklch(0.96 0.008 264); display:flex; align-items:center; gap:14px; padding:10px 18px; font-family:'Work Sans',sans-serif; font-size:19px; font-weight:500; text-align:left; cursor:pointer">
+              <img src="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/Sona.png" alt="" style="width:44px; height:44px; border-radius:10px; display:block; filter:grayscale(1) brightness(.7)" />Juli
+            </button>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px; padding-top:12px; border-top:1px solid oklch(0.3 0.028 264)">
+            <button style="min-height:60px; border-radius:14px; background:transparent; border:1px dashed oklch(0.42 0.03 264); color:oklch(0.88 0.012 264); padding:12px 18px; font-family:'Work Sans',sans-serif; font-size:17px; font-weight:500; text-align:left; cursor:pointer" style-hover="border-color:oklch(0.72 0.02 264)">Hubo empate, no echamos a nadie</button>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.5; color:oklch(0.62 0.02 264)">El empate deja zafar al impostor: se anota los 3 puntos igual.</span>
+          </div>
+        </div>
+        <div style="padding:16px 20px 28px">
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:19px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Revelar</button>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">Los cuadrados 120×120 de la CDN entran acá como avatar asignado a cada jugador, desaturados para que no compitan con el retrato de la carta ni sugieran el campeón de la ronda.</p></sc-if>
+    </div>
+
+    <!-- 07a REVELACION IMPOSTOR -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">07a</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Gana el impostor</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:15</span><span>▮▮▮ ▲ 57%</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden">
+          <div style="background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); padding:22px 20px 18px; display:flex; flex-direction:column; gap:8px">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase">Ronda 3</span>
+            <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:44px; line-height:.92; letter-spacing:-.03em; text-transform:uppercase; transform-origin:left center; animation:riftSlam .5s cubic-bezier(.2,.9,.2,1) both">El impostor<br>zafó</h2>
+            <p style="margin:0; font-size:16px; line-height:1.35; font-weight:500">Era Juli. Votaron a Nico, que veía a {{ champName }} igual que todos.</p>
+          </div>
+          <div style="padding:16px 20px; display:flex; gap:14px; align-items:flex-start; border-bottom:1px solid oklch(0.3 0.028 264)">
+            <div style="width:92px; height:166px; flex:none; border-radius:12px; overflow:hidden; background:oklch(0.24 0.026 264); animation:riftWipe .6s .2s cubic-bezier(.3,.8,.2,1) both">
+              <sc-if value="{{ portrait }}"><img src="{{ portrait }}" alt="" style="width:100%; height:100%; object-fit:cover; object-position:top center; display:block" /></sc-if>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; padding-top:4px">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:oklch(0.72 0.02 264)">El campeón era</span>
+              <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:34px; line-height:1; letter-spacing:-.02em; text-transform:uppercase">{{ champName }}</span>
+              <span style="font-size:15px; color:oklch(0.78 0.02 264)">{{ champRegion }} · {{ champClass }}</span>
+            </div>
+          </div>
+          <div style="flex:1; min-height:0; padding:14px 20px 12px; display:flex; flex-direction:column; gap:3px; overflow-y:auto">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.72 0.02 264); margin-bottom:2px">Puntos de esta ronda</span>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px; border-radius:12px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.36 0.03 264)">
+              <span style="width:22px; text-align:center; color:oklch(0.80 0.14 80)">◆</span>
+              <span style="flex:1; font-size:18px; font-weight:600">Juli</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)">impostor</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:oklch(0.80 0.14 80); width:34px; text-align:right">+3</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px"><span style="width:22px"></span><span style="flex:1; font-size:18px">Cami</span><span style="font-family:'IBM Plex Mono',monospace; font-size:19px; color:oklch(0.72 0.02 264); width:34px; text-align:right">0</span></div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px"><span style="width:22px"></span><span style="flex:1; font-size:18px">Nico</span><span style="font-family:'IBM Plex Mono',monospace; font-size:19px; color:oklch(0.72 0.02 264); width:34px; text-align:right">0</span></div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px"><span style="width:22px"></span><span style="flex:1; font-size:18px">Fer</span><span style="font-family:'IBM Plex Mono',monospace; font-size:19px; color:oklch(0.72 0.02 264); width:34px; text-align:right">0</span></div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px"><span style="width:22px"></span><span style="flex:1; font-size:18px">Tomi</span><span style="font-family:'IBM Plex Mono',monospace; font-size:19px; color:oklch(0.72 0.02 264); width:34px; text-align:right">0</span></div>
+          </div>
+        </div>
+        <div style="padding:10px 20px 24px; display:flex; flex-direction:column; gap:8px">
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:19px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Siguiente ronda</button>
+          <button style="width:100%; height:56px; border:1px solid oklch(0.42 0.03 264); border-radius:16px; background:transparent; color:oklch(0.96 0.008 264); font-family:'Work Sans',sans-serif; font-size:17px; font-weight:500; cursor:pointer" style-hover="border-color:oklch(0.72 0.02 264)">Ver la tabla</button>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">El resultado se lee de un vistazo por la banda superior: ámbar plena cuando gana el impostor, menta cuando gana el grupo. El retrato entra con un barrido vertical de 600&nbsp;ms; es el único momento del juego donde la imagen aparece en público.</p></sc-if>
+    </div>
+
+    <!-- 07b REVELACION GRUPO -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">07b</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Gana el grupo</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:15</span><span>▮▮▮ ▲ 57%</span></div>
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden">
+          <div style="background:oklch(0.80 0.14 158); color:oklch(0.18 0.022 264); padding:22px 20px 18px; display:flex; flex-direction:column; gap:8px">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase">Ronda 3</span>
+            <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:44px; line-height:.92; letter-spacing:-.03em; text-transform:uppercase; transform-origin:left center; animation:riftSlam .5s cubic-bezier(.2,.9,.2,1) both">Cayó el<br>impostor</h2>
+            <p style="margin:0; font-size:16px; line-height:1.35; font-weight:500">Era Juli y lo echaron en la primera votación.</p>
+          </div>
+          <div style="padding:16px 20px; display:flex; gap:14px; align-items:flex-start; border-bottom:1px solid oklch(0.3 0.028 264)">
+            <div style="width:92px; height:166px; flex:none; border-radius:12px; overflow:hidden; background:oklch(0.24 0.026 264); animation:riftWipe .6s .2s cubic-bezier(.3,.8,.2,1) both">
+              <sc-if value="{{ portrait }}"><img src="{{ portrait }}" alt="" style="width:100%; height:100%; object-fit:cover; object-position:top center; display:block" /></sc-if>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; padding-top:4px">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:oklch(0.72 0.02 264)">El campeón era</span>
+              <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:34px; line-height:1; letter-spacing:-.02em; text-transform:uppercase">{{ champName }}</span>
+              <span style="font-size:15px; color:oklch(0.78 0.02 264)">{{ champRegion }} · {{ champClass }}</span>
+            </div>
+          </div>
+          <div style="flex:1; min-height:0; padding:14px 20px 12px; display:flex; flex-direction:column; gap:3px; overflow-y:auto">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.72 0.02 264); margin-bottom:2px">Puntos de esta ronda</span>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px; border-radius:12px; background:oklch(0.24 0.026 264); border:1px solid oklch(0.36 0.03 264)">
+              <span style="width:22px; text-align:center; color:oklch(0.72 0.02 264)">◆</span>
+              <span style="flex:1; font-size:18px; font-weight:600">Juli</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)">impostor</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:19px; color:oklch(0.72 0.02 264); width:34px; text-align:right">0</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px"><span style="width:22px"></span><span style="flex:1; font-size:18px">Cami</span><span style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:oklch(0.80 0.14 158); width:34px; text-align:right">+1</span></div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px"><span style="width:22px"></span><span style="flex:1; font-size:18px">Nico</span><span style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:oklch(0.80 0.14 158); width:34px; text-align:right">+1</span></div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px"><span style="width:22px"></span><span style="flex:1; font-size:18px">Fer</span><span style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:oklch(0.80 0.14 158); width:34px; text-align:right">+1</span></div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:42px; padding:0 14px"><span style="width:22px"></span><span style="flex:1; font-size:18px">Tomi</span><span style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:oklch(0.80 0.14 158); width:34px; text-align:right">+1</span></div>
+          </div>
+        </div>
+        <div style="padding:10px 20px 24px; display:flex; flex-direction:column; gap:8px">
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 158); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:19px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Siguiente ronda</button>
+          <button style="width:100%; height:56px; border:1px solid oklch(0.42 0.03 264); border-radius:16px; background:transparent; color:oklch(0.96 0.008 264); font-family:'Work Sans',sans-serif; font-size:17px; font-weight:500; cursor:pointer">Ver la tabla</button>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">Misma estructura, mismo peso: cambia el color de la banda, el titular y de qué lado están los puntos. Nada se mueve de lugar entre las dos variantes.</p></sc-if>
+    </div>
+
+    <!-- 08 TABLA -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">08</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Tabla</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:18</span><span>▮▮▮ ▲ 56%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; border-bottom:1px solid oklch(0.3 0.028 264)">
+          <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:17px; text-transform:uppercase">Rift Impostor</span>
+          <div style="display:flex; gap:18px; font-size:14px; color:oklch(0.72 0.02 264)"><span>Jugar</span><span>Reglas</span><span style="color:oklch(0.96 0.008 264); font-weight:500">Tabla</span></div>
+        </div>
+        <div style="flex:1; min-height:0; overflow-y:auto; padding:20px 20px 0; display:flex; flex-direction:column; gap:14px">
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:36px; line-height:.94; letter-spacing:-.02em; text-transform:uppercase">Tabla</h2>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)">3 rondas jugadas · se gana con 10 puntos</span>
+          </div>
+          <div style="padding:16px; border-radius:14px; background:oklch(0.24 0.026 264); border-left:none; border:1px solid oklch(0.36 0.03 264); display:flex; flex-direction:column; gap:4px">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:oklch(0.80 0.14 80)">Mejor impostor</span>
+            <span style="font-size:17px; line-height:1.4; text-wrap:pretty"><strong style="font-weight:600">Cami</strong> — ganó 2 de 3 veces que le tocó</span>
+          </div>
+          <div style="display:flex; flex-direction:column">
+            <div style="display:flex; align-items:center; gap:12px; height:36px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:oklch(0.66 0.02 264); border-bottom:1px solid oklch(0.3 0.028 264)">
+              <span style="width:22px">#</span><span style="flex:1">Jugador</span><span style="width:64px; text-align:right">Impostor</span><span style="width:48px; text-align:right">Pts</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:60px; border-bottom:1px solid oklch(0.26 0.026 264); background:oklch(0.22 0.024 264)">
+              <span style="width:22px; padding-left:8px; font-family:'IBM Plex Mono',monospace; font-size:15px; color:oklch(0.80 0.14 158)">1</span>
+              <span style="flex:1; font-size:18px; font-weight:600; display:flex; align-items:center; gap:8px">Cami<span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:3px 7px; border-radius:5px; background:oklch(0.80 0.14 158); color:oklch(0.18 0.022 264)">Gana</span></span>
+              <span style="width:64px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.72 0.02 264)">2/3</span>
+              <span style="width:48px; padding-right:8px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:500">10</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:60px; border-bottom:1px solid oklch(0.26 0.026 264)">
+              <span style="width:22px; padding-left:8px; font-family:'IBM Plex Mono',monospace; font-size:15px; color:oklch(0.66 0.02 264)">2</span>
+              <span style="flex:1; font-size:18px">Nico</span>
+              <span style="width:64px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.72 0.02 264)">0/1</span>
+              <span style="width:48px; padding-right:8px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:20px">6</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:60px; border-bottom:1px solid oklch(0.26 0.026 264)">
+              <span style="width:22px; padding-left:8px; font-family:'IBM Plex Mono',monospace; font-size:15px; color:oklch(0.66 0.02 264)">3</span>
+              <span style="flex:1; font-size:18px">Juli</span>
+              <span style="width:64px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.72 0.02 264)">1/2</span>
+              <span style="width:48px; padding-right:8px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:20px">5</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:60px; border-bottom:1px solid oklch(0.26 0.026 264)">
+              <span style="width:22px; padding-left:8px; font-family:'IBM Plex Mono',monospace; font-size:15px; color:oklch(0.66 0.02 264)">4</span>
+              <span style="flex:1; font-size:18px">Fer</span>
+              <span style="width:64px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.72 0.02 264)">0/0</span>
+              <span style="width:48px; padding-right:8px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:20px">3</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; min-height:60px">
+              <span style="width:22px; padding-left:8px; font-family:'IBM Plex Mono',monospace; font-size:15px; color:oklch(0.66 0.02 264)">5</span>
+              <span style="flex:1; font-size:18px">Tomi</span>
+              <span style="width:64px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.72 0.02 264)">0/0</span>
+              <span style="width:48px; padding-right:8px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:20px">3</span>
+            </div>
+          </div>
+        </div>
+        <div style="padding:14px 20px 28px; display:flex; flex-direction:column; gap:10px">
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:19px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Volver a la partida</button>
+          <button style="width:100%; height:56px; border:1px solid oklch(0.42 0.03 264); border-radius:16px; background:transparent; color:oklch(0.88 0.012 264); font-family:'Work Sans',sans-serif; font-size:16px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px">Reiniciar la partida</button>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; text-align:center; color:oklch(0.62 0.02 264)">Toca dos veces: el segundo toque confirma</span>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">Reiniciar no abre modal: el botón se convierte en «¿Seguro? Toca de nuevo» durante 4 segundos y vuelve solo. Con 10 filas la tabla scrollea y las dos acciones quedan fijas.</p></sc-if>
+    </div>
+
+    <!-- 08b TABLA VACIA -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">08b</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Tabla — vacía</span></div>
+      <div style="width:390px; height:844px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>0:58</span><span>▮▮▮ ▲ 62%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; border-bottom:1px solid oklch(0.3 0.028 264)">
+          <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:17px; text-transform:uppercase">Rift Impostor</span>
+          <div style="display:flex; gap:18px; font-size:14px; color:oklch(0.72 0.02 264)"><span>Jugar</span><span>Reglas</span><span style="color:oklch(0.96 0.008 264); font-weight:500">Tabla</span></div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:0 32px">
+          <div style="width:64px; height:112px; border-radius:10px; border:1px dashed oklch(0.42 0.03 264); background-image:repeating-linear-gradient(115deg, oklch(0.24 0.026 264) 0 1px, transparent 1px 9px)"></div>
+          <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:30px; line-height:1; letter-spacing:-.02em; text-transform:uppercase; text-align:center">Todavía no<br>jugaron nada</h2>
+          <p style="margin:0; font-size:16px; line-height:1.5; text-align:center; color:oklch(0.78 0.02 264); max-width:28ch; text-wrap:pretty">La tabla se llena cuando termina la primera ronda. Los puntos quedan guardados en este celular.</p>
+        </div>
+        <div style="padding:16px 20px 28px">
+          <button style="width:100%; height:64px; border:0; border-radius:16px; background:oklch(0.80 0.14 80); color:oklch(0.18 0.022 264); font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:19px; text-transform:uppercase; letter-spacing:.03em; cursor:pointer">Armar una partida</button>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">El vacío usa la misma silueta de carta rayada de la 04, en chico: es la marca gráfica del juego cuando no hay imagen.</p></sc-if>
+    </div>
+
+    <!-- 10 REGLAS -->
+    <div style="display:flex; flex-direction:column; gap:14px; width:390px">
+      <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">10</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Reglas (contenido indexable)</span></div>
+      <div style="width:390px; border-radius:34px; overflow:hidden; background:oklch(0.18 0.022 264); color:oklch(0.96 0.008 264); display:flex; flex-direction:column; box-shadow:0 24px 60px -20px oklch(0.2 0.03 265 / .5)">
+        <div style="height:44px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.72 0.02 264)"><span>1:22</span><span>▮▮▮ ▲ 55%</span></div>
+        <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 20px; border-bottom:1px solid oklch(0.3 0.028 264)">
+          <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:17px; text-transform:uppercase">Rift Impostor</span>
+          <div style="display:flex; gap:18px; font-size:14px; color:oklch(0.72 0.02 264)"><span>Jugar</span><span style="color:oklch(0.96 0.008 264); font-weight:500">Reglas</span><span>Tabla</span></div>
+        </div>
+        <div style="padding:32px 24px 40px; display:flex; flex-direction:column; gap:28px">
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <h2 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:32px; line-height:1; letter-spacing:-.02em; text-transform:uppercase">Cómo se juega</h2>
+            <p style="margin:0; font-size:17px; line-height:1.6; color:oklch(0.85 0.012 264); text-wrap:pretty; font-family:'IBM Plex Mono',monospace; font-size:14px">[intro — 1 párrafo, 40-60 palabras: qué es el juego y para cuántos]</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <h3 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:20px; text-transform:uppercase; letter-spacing:.01em">Los pasos</h3>
+            <ol style="margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:12px">
+              <li style="display:flex; gap:14px"><span style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.80 0.14 80); flex:none; width:20px">01</span><span style="font-family:'IBM Plex Mono',monospace; font-size:14px; line-height:1.6; color:oklch(0.78 0.02 264)">[paso 1 — una línea]</span></li>
+              <li style="display:flex; gap:14px"><span style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.80 0.14 80); flex:none; width:20px">02</span><span style="font-family:'IBM Plex Mono',monospace; font-size:14px; line-height:1.6; color:oklch(0.78 0.02 264)">[paso 2 — una línea]</span></li>
+              <li style="display:flex; gap:14px"><span style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.80 0.14 80); flex:none; width:20px">03</span><span style="font-family:'IBM Plex Mono',monospace; font-size:14px; line-height:1.6; color:oklch(0.78 0.02 264)">[paso 3 — una línea]</span></li>
+              <li style="display:flex; gap:14px"><span style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:oklch(0.80 0.14 80); flex:none; width:20px">04</span><span style="font-family:'IBM Plex Mono',monospace; font-size:14px; line-height:1.6; color:oklch(0.78 0.02 264)">[paso 4 — una línea]</span></li>
+            </ol>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <h3 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:20px; text-transform:uppercase">Las dos dificultades</h3>
+            <div style="display:flex; flex-direction:column; gap:10px">
+              <div style="padding:14px 16px; border-radius:12px; background:oklch(0.22 0.024 264); border:1px solid oklch(0.32 0.028 264); display:flex; flex-direction:column; gap:6px">
+                <span style="font-size:16px; font-weight:600">Con clase</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:oklch(0.76 0.02 264)">[2 líneas]</span>
+              </div>
+              <div style="padding:14px 16px; border-radius:12px; background:oklch(0.22 0.024 264); border:1px solid oklch(0.32 0.028 264); display:flex; flex-direction:column; gap:6px">
+                <span style="font-size:16px; font-weight:600">Sin clase</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:oklch(0.76 0.02 264)">[2 líneas]</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px">
+            <h3 style="margin:0; font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:20px; text-transform:uppercase">Puntajes</h3>
+            <table style="width:100%; border-collapse:collapse; font-size:15px">
+              <tbody>
+                <tr style="border-top:1px solid oklch(0.32 0.028 264); border-bottom:1px solid oklch(0.32 0.028 264)">
+                  <td style="padding:14px 0; line-height:1.4">El impostor zafa</td>
+                  <td style="padding:14px 0; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:19px; color:oklch(0.80 0.14 80); white-space:nowrap">+3</td>
+                </tr>
+                <tr style="border-bottom:1px solid oklch(0.32 0.028 264)">
+                  <td style="padding:14px 0; line-height:1.4">El grupo lo caza</td>
+                  <td style="padding:14px 0; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:19px; color:oklch(0.80 0.14 158); white-space:nowrap">+1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin:0; padding:16px; border-radius:12px; background:oklch(0.22 0.024 264); font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.7; color:oklch(0.78 0.02 264)">[consejo — 1 párrafo corto de estrategia]</p>
+          <p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.7; color:oklch(0.66 0.02 264)">[aviso legal — proyecto de fans, no afiliado ni respaldado por Riot Games. Nombres e imágenes de campeones son propiedad de sus dueños.]</p>
+        </div>
+      </div>
+      <sc-if value="{{ ann }}" hint-placeholder-val="{{ true }}"><p style="margin:0; font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:oklch(0.45 0.02 265); max-width:390px">Bloque de página real, no modal: h2, h3 y tabla semánticos, siempre visible en /reglas. Los textos en corchetes esperan tu copy; la estructura y la jerarquía ya están fijas. Medida de 34-40 caracteres por línea a 17px.</p></sc-if>
+    </div>
+
+  </div>
+
+  <!-- 09 BARRA + COMPONENTES -->
+  <div style="display:flex; flex-direction:column; gap:24px; max-width:1180px">
+    <div style="display:flex; align-items:baseline; gap:10px"><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:oklch(0.55 0.02 265)">09</span><span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 112; font-weight:700; font-size:15px; text-transform:uppercase; letter-spacing:.02em">Barra superior + componentes que se desprenden</span></div>
+    <div style="display:flex; flex-wrap:wrap; gap:20px">
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:oklch(0.55 0.02 265)">Barra — navegación</span>
+        <div style="width:390px; height:56px; background:oklch(0.18 0.022 264); border-radius:12px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; color:oklch(0.96 0.008 264)">
+          <span style="font-family:Archivo,sans-serif; font-variation-settings:'wdth' 118; font-weight:800; font-size:17px; text-transform:uppercase">Rift Impostor</span>
+          <div style="display:flex; gap:18px; font-size:14px; color:oklch(0.72 0.02 264)"><span style="color:oklch(0.96 0.008 264); font-weight:500">Jugar</span><span>Reglas</span><span>Tabla</span></div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:oklch(0.55 0.02 265)">Barra — en partida (progreso)</span>
+        <div style="width:390px; height:56px; background:oklch(0.18 0.022 264); border-radius:12px; display:flex; align-items:center; justify-content:center; position:relative; color:oklch(0.96 0.008 264)">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:oklch(0.72 0.02 264)">Carta 3 de 5</span>
+          <div style="position:absolute; left:20px; right:20px; bottom:0; height:2px; background:oklch(0.3 0.028 264)"><div style="width:60%; height:2px; background:oklch(0.80 0.14 80)"></div></div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:oklch(0.55 0.02 265)">Foco visible (2px, offset 3px)</span>
+        <div style="width:250px; height:56px; background:oklch(0.18 0.022 264); border-radius:12px; display:flex; align-items:center; justify-content:center; padding:0 16px">
+          <button style="height:44px; padding:0 20px; border-radius:12px; border:0; background:oklch(0.24 0.026 264); color:oklch(0.96 0.008 264); font-family:'Work Sans',sans-serif; font-size:16px; outline:2px solid oklch(0.80 0.14 80); outline-offset:3px">Reglas</button>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:oklch(0.55 0.02 265)">Pista de clase (solo impostor) · stress ES/EN</span>
+        <div style="width:390px; height:56px; background:oklch(0.18 0.022 264); border-radius:12px; display:flex; align-items:center; gap:10px; padding:0 16px">
+          <span style="height:36px; padding:0 14px; border-radius:18px; background:oklch(0.26 0.026 264); border:1px solid oklch(0.36 0.03 264); display:flex; align-items:center; font-size:14px; color:oklch(0.9 0.01 264)">El campeón es un mago</span>
+          <span style="height:36px; padding:0 14px; border-radius:18px; background:oklch(0.26 0.026 264); border:1px solid oklch(0.36 0.03 264); display:flex; align-items:center; font-size:14px; color:oklch(0.9 0.01 264)">The champion is a mage</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin:0; max-width:70ch; font-size:16px; line-height:1.6; color:oklch(0.38 0.02 265); text-wrap:pretty">Todo bloque de texto se dimensiona por altura mínima, nunca por altura fija: el español ocupa entre 15% y 25% más y los titulares están cortados a mano en dos o tres líneas para que crezcan hacia abajo. Contraste medido: papel sobre tinta 15.4:1, brasa sobre tinta 9.1:1, tinta sobre brasa 9.1:1, secundario sobre tinta 6.8:1. El foco es un anillo ámbar de 2px con 3px de separación, nunca un cambio de relleno. Con <code style="font-family:'IBM Plex Mono',monospace; font-size:14px">prefers-reduced-motion</code> el barrido de la revelación pasa a un corte con desvanecido de 120&nbsp;ms, el halo del botón se apaga y las entradas quedan estáticas: ninguna información vive solo en el movimiento.</p>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;champion&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Ahri&quot;,&quot;Darius&quot;,&quot;Lux&quot;,&quot;Yasuo&quot;],&quot;default&quot;:&quot;Ahri&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contenido&quot;},&quot;classChip&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Contenido&quot;},&quot;annotations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Presentación&quot;}}">
+const CHAMPS = {
+  Ahri:   { name: "Ahri",   region: "Ionia",   klass: "maga",     slug: "Ahri" },
+  Darius: { name: "Darius", region: "Noxus",   klass: "luchador", slug: "Darius" },
+  Lux:    { name: "Lux",    region: "Demacia", klass: "maga",     slug: "Lux" },
+  Yasuo:  { name: "Yasuo",  region: "Ionia",   klass: "duelista", slug: "Yasuo" }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const c = CHAMPS[this.props.champion] || CHAMPS.Ahri;
+    return {
+      ann: this.props.annotations ?? true,
+      chip: this.props.classChip ?? true,
+      champName: c.name,
+      champRegion: c.region,
+      champClass: c.klass,
+      portrait: "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/" + c.slug + "_0.jpg",
+      square: "https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion/" + c.slug + ".png"
+    };
+  }
+}
+</script>
+</body>
+</html>

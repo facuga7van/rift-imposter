@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Impostor LoL</title>
+<style>
+  :root {
+    --bg: #0a1428;
+    --panel: #101f3c;
+    --gold: #c8aa6e;
+    --gold-soft: #f0e6d2;
+    --red: #c8434c;
+    --line: #1e3a5f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--gold-soft);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 20px;
+  }
+
+  main {
+    width: 100%;
+    max-width: 460px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 32px 24px;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .sub {
+    margin: 0 0 28px;
+    font-size: 13px;
+    opacity: .6;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .turno {
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .aviso {
+    font-size: 15px;
+    opacity: .75;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .carta {
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 36px 16px;
+    margin-bottom: 28px;
+    background: #0a1428;
+  }
+
+  .carta .rol {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: .55;
+    margin-bottom: 12px;
+  }
+
+  .carta .valor {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .carta.impostor { border-color: var(--red); }
+  .carta.impostor .valor { color: var(--red); }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 6px;
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: #0a1428;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  button:hover { background: #d9bf87; }
+
+  button.ghost {
+    background: transparent;
+    color: var(--gold);
+  }
+
+  button.ghost:hover { background: rgba(200, 170, 110, .12); }
+
+  .reset { margin-top: 12px; }
+
+  .puntos {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .punto {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+  }
+
+  .punto.hecho { background: var(--gold); }
+</style>
+</head>
+<body>
+  <main>
+    <h1>Impostor LoL</h1>
+    <p class="sub">4 jugadores · 1 impostor</p>
+
+    <section id="screen-inicio" class="screen active">
+      <p class="aviso">Todos ven el mismo campeón, menos uno.<br>Pasen el dispositivo por turnos.</p>
+      <button id="btn-empezar">Empezar partida</button>
+    </section>
+
+    <section id="screen-pasar" class="screen">
+      <div class="puntos" id="puntos"></div>
+      <p class="turno" id="turno-label"></p>
+      <p class="aviso">Que nadie más mire la pantalla.</p>
+      <button id="btn-ver">Ver mi carta</button>
+      <button class="ghost reset" data-reset>Reset</button>
+    </section>
+
+    <section id="screen-carta" class="screen">
+      <p class="turno" id="carta-label"></p>
+      <div class="carta" id="carta">
+        <div class="rol" id="carta-rol"></div>
+        <div class="valor" id="carta-valor"></div>
+      </div>
+      <button id="btn-ocultar">Ocultar y pasar turno</button>
+    </section>
+
+    <section id="screen-fin" class="screen">
+      <p class="turno">Todos vieron su carta</p>
+      <p class="aviso">A discutir. Cada uno describe el campeón sin nombrarlo.<br>Encuentren al impostor.</p>
+      <button id="btn-revelar" class="ghost">Revelar respuesta</button>
+      <div class="carta" id="carta-final" style="display:none; margin-top:20px">
+        <div class="rol">Campeón</div>
+        <div class="valor" id="final-campeon"></div>
+        <div class="rol" style="margin-top:18px">Impostor</div>
+        <div class="valor" id="final-impostor"></div>
+      </div>
+      <button class="ghost reset" data-reset>Nueva partida</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

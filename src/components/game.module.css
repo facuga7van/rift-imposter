@@ -1,0 +1,1801 @@
+/* =========================================================================
+   Rift Impostor — layout y componentes
+
+   Dos decisiones estructurales que mandan sobre todo lo demas:
+
+   1. El dock (la accion primaria) es `position: sticky; bottom: 0` dentro de
+      una columna de `min-height: 100dvh`, NO un panel con scroll interno. El
+      bloque de reglas vive debajo del juego y tiene que ser scrolleable como
+      pagina normal; anidar un scroll adentro de otro en mobile es un dolor y
+      rompe el rebote nativo.
+
+   2. La carta se dimensiona por la ALTURA disponible, no por su ancho. 308x560
+      no entra en un iPhone SE (667 de alto): sin esto el nombre del campeon se
+      te va abajo del fold, que es justo el dato de la pantalla.
+   ========================================================================= */
+
+/* ==== Animaciones ======================================================= */
+
+@keyframes riftRise {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes riftBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.85;
+  }
+}
+
+@keyframes riftWipe {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes riftSlam {
+  0% {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(0.98);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes riftSweep {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(420%);
+  }
+}
+
+@keyframes riftTick {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* ==== Shell ============================================================= */
+
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  /* El dock se apoya en esto: la columna siempre llega al piso del viewport,
+     asi que su ultimo hijo queda a la altura del borde inferior. */
+  min-height: 100dvh;
+  background: var(--tinta);
+  /* Container en vez de media queries, y no es capricho: los breakpoints de
+     abajo estan en `rem`, asi que reaccionan tanto a un telefono angosto como
+     a un usuario con la fuente del navegador en 125%. Una media query en `px`
+     no ve el segundo caso, y es justo donde se rompia la barra superior. */
+  container-type: inline-size;
+  container-name: app;
+}
+
+/* Rail decorativo de escritorio. No aporta informacion nueva ni navegacion:
+   existe para que la columna no quede sola en el medio de una pantalla de 27". */
+.rail {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .app {
+    /* `width: 100%` no es redundante: sin un ancho explicito, el
+       `margin-inline: auto` saca al item del `stretch` del grid y lo mide por
+       `fit-content`, pero `container-type: inline-size` prohibe medir por
+       contenido. Resultado: la columna colapsaba a 2px en escritorio. */
+    width: 100%;
+    max-width: 27.5rem;
+    margin-inline: auto;
+    border-inline: 1px solid var(--linea);
+  }
+}
+
+@media (min-width: 60rem) {
+  .app {
+    box-shadow: 0 0 80px -20px oklch(0.05 0.02 265 / 0.9);
+  }
+}
+
+@media (min-width: 75rem) {
+  .page {
+    grid-template-columns: minmax(0, 1fr) 27.5rem minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .app {
+    grid-column: 2;
+    max-width: none;
+  }
+
+  .rail {
+    display: flex;
+    grid-column: 1;
+    position: sticky;
+    top: 0;
+    flex-direction: column;
+    gap: var(--s3);
+    justify-self: end;
+    width: min(22rem, 100%);
+    padding: 6rem var(--s5) var(--s5);
+  }
+
+  .railMark {
+    font-size: clamp(2rem, 3.4vw, 2.75rem);
+    color: var(--papel);
+  }
+
+  .railLede {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--papel-2);
+  }
+
+  .railMeta {
+    margin-top: var(--s1);
+    font-size: 0.75rem;
+    line-height: 1.8;
+    color: var(--papel-3);
+  }
+}
+
+/* ==== Barra superior ==================================================== */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s1);
+  min-height: var(--touch);
+  padding-inline: var(--gutter);
+  background: color-mix(in oklab, var(--tinta) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--linea);
+}
+
+.wordmark {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-weight: 800;
+  /* A 320px de ancho la marca compite con la navegacion: cede ella. */
+  font-size: clamp(0.875rem, 4.4vw, 1.0625rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--papel);
+  text-decoration: none;
+  /* La marca es lo unico que puede ceder: la navegacion no se trunca nunca. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wordmarkShort {
+  display: none;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  flex: none;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.5rem;
+  background: none;
+  border: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--papel-2);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.navLink:hover {
+  color: var(--papel);
+}
+
+.langBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.25rem;
+  margin-left: 0.25rem;
+  padding-inline: 0.5rem;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--papel-2);
+  text-decoration: none;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.langBtn:hover {
+  color: var(--brasa);
+  border-color: var(--brasa);
+}
+
+/* Modo compacto. Entra en un telefono de 320px, y tambien en uno de 390px con
+   la fuente del navegador al 125%: los dos casos dan menos de 24rem de
+   container. Se aprieta el cromo, nunca el contenido del juego. */
+@container app (max-width: 24rem) {
+  .app {
+    --gutter: 1rem;
+  }
+
+  .wordmark {
+    font-size: 0.8125rem;
+  }
+
+  .navLink {
+    padding-inline: 0.375rem;
+    font-size: 0.8125rem;
+  }
+
+  .langBtn {
+    min-width: 2.125rem;
+    margin-left: 0.125rem;
+    padding-inline: 0.375rem;
+    font-size: 0.6875rem;
+  }
+
+  /* El contador de caracteres es adorno: el `maxLength` ya frena el nombre.
+     Cuando la fila se aprieta, el ancho es del nombre. */
+  .charCount {
+    display: none;
+  }
+
+  .removeBtn {
+    width: 2.5rem;
+  }
+}
+
+/* Tier extremo: 320px con la fuente del navegador al 125%. Ahi "Rift Impostor"
+   entero no entra ni achicandolo a un tamaño legible, y truncarlo a
+   "Rift Imp…" es peor que no ponerlo. Se corta a "Rift", que sigue siendo la
+   marca, y la navegacion queda intacta. */
+@container app (max-width: 20rem) {
+  .wordmarkFull {
+    display: none;
+  }
+
+  .wordmarkShort {
+    display: inline;
+  }
+
+  .playerInput {
+    font-size: 1rem;
+  }
+}
+
+/* Barra de contexto: en que ronda y en que momento va la mesa. Durante el
+   reparto reemplaza a la navegacion entera; en el resto de las fases la
+   acompaña abajo. */
+.context {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0.375rem var(--gutter);
+  border-bottom: 1px solid var(--linea);
+  background: var(--tinta);
+}
+
+.contextLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--papel-2);
+  text-align: center;
+}
+
+.progress {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: -1px;
+  height: 2px;
+  background: var(--linea);
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--brasa);
+  transition: width var(--dur) var(--ease-out);
+}
+
+/* ==== Cuerpo y dock ===================================================== */
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  min-height: 0;
+  padding: var(--s4) var(--gutter);
+  container-type: inline-size;
+  animation: riftRise var(--dur) var(--ease-out) both;
+}
+
+/* Variante centrada: pasar el celular y el estado vacio de la tabla. */
+.bodyCenter {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--s4);
+}
+
+/* Variante de carta: el escenario se come el alto sobrante. */
+.bodyCard {
+  gap: var(--s2);
+  padding-top: var(--s3);
+}
+
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-dock);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding: var(--s3) var(--gutter)
+    calc(var(--s4) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    to top,
+    var(--tinta) 68%,
+    color-mix(in oklab, var(--tinta) 70%, transparent)
+  );
+  backdrop-filter: blur(8px);
+}
+
+/* La barra de arriba y el dock son pegajosos: cuando el navegador scrollea un
+   control a la vista (al enfocar un input, o con teclado) tiene que dejarlo
+   libre de los dos. Sin esto el ultimo jugador de la lista queda debajo del
+   boton de repartir. */
+.playerRow,
+.addBtn,
+.setting,
+.voteBtn,
+.tieBtn,
+.orderItem {
+  scroll-margin-block: 5.5rem 7.5rem;
+}
+
+.dockNote {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--papel-3);
+}
+
+/* ==== Tipografia de pantalla ============================================ */
+
+.headline {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-weight: 800;
+  font-size: clamp(1.75rem, 8.6vw, 2.25rem);
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  /* Medida corta a proposito: el titular crece hacia abajo en español sin
+     empujar nada de costado. */
+  max-width: 13ch;
+}
+
+.lede {
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--papel-2);
+  max-width: 34ch;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.note {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--papel-3);
+}
+
+/* ==== Botones =========================================================== */
+
+.btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s1);
+  width: 100%;
+  min-height: var(--touch-lg);
+  padding-inline: var(--s3);
+  border: 0;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 112;
+  font-weight: 700;
+  font-size: clamp(1rem, 4.4vw, 1.1875rem);
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.btnPrimary {
+  background: var(--brasa);
+  color: var(--tinta);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: var(--brasa-alta);
+}
+
+.btnMint {
+  background: var(--menta);
+  color: var(--tinta);
+}
+
+.btnMint:hover:not(:disabled) {
+  background: var(--menta-alta);
+}
+
+/* Secundario: sin versalitas ni Archivo. Que no compita con el primario. */
+.btnGhost {
+  min-height: var(--touch);
+  background: transparent;
+  border: 1px solid var(--linea-fuerte);
+  font-family: var(--font-sans), sans-serif;
+  font-variation-settings: normal;
+  font-weight: 500;
+  font-size: 1.0625rem;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--papel);
+}
+
+.btnGhost:hover:not(:disabled) {
+  border-color: var(--papel-2);
+}
+
+.btnDanger {
+  border-color: var(--brasa);
+  color: var(--brasa);
+}
+
+/* Brillo que recorre el CTA. Es la unica animacion en bucle de la app y solo
+   vive en la pantalla de armado, donde no hay tension que romper. */
+.shine {
+  position: absolute;
+  inset: 0;
+  width: 28%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(1 0 0 / 0.35),
+    transparent
+  );
+  animation: riftSweep 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ==== 01 · Setup ======================================================== */
+
+.fieldHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+  margin-bottom: var(--s1);
+}
+
+.fieldLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--papel-2);
+}
+
+.fieldCount {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--papel-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.playerList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: var(--touch);
+  padding: 0 0.5rem 0 var(--s3);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radius);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+/* El borde ambar marca la fila en edicion. Es 1px + inset en vez de 2px para
+   que la fila no cambie de alto al enfocarse y la lista no salte. */
+.playerRow:focus-within {
+  border-color: var(--brasa);
+  box-shadow: inset 0 0 0 1px var(--brasa);
+}
+
+.playerInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 0;
+  background: none;
+  border: 0;
+  color: var(--papel);
+  font: inherit;
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+
+.playerInput:focus {
+  outline: none;
+}
+
+.playerInput::placeholder {
+  color: var(--papel-3);
+}
+
+/* El contador aparece solo en la fila en edicion: en reposo es ruido. */
+.charCount {
+  flex: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  color: var(--papel-3);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.playerRow:focus-within .charCount {
+  opacity: 1;
+  color: var(--brasa);
+}
+
+.removeBtn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--papel-2);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.removeBtn:hover:not(:disabled) {
+  background: var(--superficie-alta);
+  color: var(--papel);
+}
+
+.removeBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch);
+  padding-inline: var(--s3);
+  background: transparent;
+  border: 1px dashed var(--linea-fuerte);
+  border-radius: var(--radius);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--papel-2);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.addBtn:hover:not(:disabled) {
+  border-color: var(--brasa);
+  color: var(--brasa);
+}
+
+.addBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.setting {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  width: 100%;
+  padding: var(--s2) var(--s2) var(--s2) var(--s3);
+  background: var(--superficie-baja);
+  border: 1px solid var(--linea);
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.setting:hover {
+  border-color: var(--linea-fuerte);
+}
+
+.settingText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.settingLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--papel);
+}
+
+/* Dos lineas fijas en los dos estados y en los dos idiomas: asi el bloque no
+   salta al togglear ni al pasar a español. */
+.settingHint {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--papel-2);
+  min-height: 2.45em;
+}
+
+.switch {
+  flex: none;
+  position: relative;
+  width: 3.75rem;
+  height: 2.125rem;
+  margin-top: 0.125rem;
+  border-radius: 999px;
+  background: var(--superficie-alta);
+  border: 1px solid var(--linea-fuerte);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--papel-3);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.switchOn {
+  background: var(--brasa);
+  border-color: var(--brasa);
+}
+
+.switchOn::after {
+  background: var(--tinta);
+  transform: translateX(1.625rem);
+}
+
+/* ==== 02 · Pasar el celular ============================================= */
+
+.passName {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-weight: 800;
+  /* El tamaño sale del LARGO del texto, no de un breakpoint: "Ana" y
+     "Maximilianoooooo" tienen que entrar los dos en una linea. El 0.9 es el
+     ancho de un caracter de Archivo 800 en versalitas, en em, medido sobre el
+     peor caso (puras W y O); con letras angostas sobra lugar, que es el error
+     que preferimos. */
+  font-size: min(4.5rem, max(1.125rem, calc(100cqi / (var(--len, 8) * 0.9))));
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  animation: riftRise 0.45s var(--ease-out) both;
+}
+
+.passLede {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--papel-2);
+  max-width: 26ch;
+}
+
+/* Halo respirando detras del CTA. Es la senal de "es tu turno" a un metro. */
+.halo {
+  position: relative;
+  width: 100%;
+}
+
+.halo::before {
+  content: "";
+  position: absolute;
+  inset: -0.5rem -0.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--brasa-tenue);
+  animation: riftBreathe 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ==== 03 / 04 · La carta ================================================ */
+
+/* El escenario se come todo el alto libre y centra la carta. */
+.cardStage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+/*
+ * Ancho de la carta: el menor entre su tamaño nativo (308), el ancho de la
+ * columna, y el que le permite la altura libre del viewport. Las 17rem son el
+ * cromo (barra + contexto + dock + aire); `svh` y no `dvh` porque la barra del
+ * navegador puede volver a aparecer y no queremos que la carta se corte.
+ */
+.card {
+  container-type: inline-size;
+  position: relative;
+  width: min(19.25rem, 100%, max(8rem, calc((100svh - 17rem) * 308 / 560)));
+  aspect-ratio: 308 / 560;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--linea);
+  background: var(--superficie);
+  overflow: hidden;
+  animation: riftRise 0.4s var(--ease-out) both;
+}
+
+.cardArt {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+/* Degrade a tinta plena: el nombre vive DENTRO del rectangulo. La silueta de
+   la carta del inocente y la del impostor es exactamente la misma. */
+.cardScrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 34%;
+  background: linear-gradient(to top, var(--tinta) 12%, transparent);
+  pointer-events: none;
+}
+
+.cardMeta {
+  position: absolute;
+  left: 6.5cqw;
+  right: 6.5cqw;
+  bottom: 6.5cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cardName {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-weight: 800;
+  /* 87cqw = el ancho de la carta menos sus dos margenes internos de 6.5cqw. */
+  font-size: min(2.375rem, max(0.875rem, calc(87cqw / (var(--len, 8) * 0.9))));
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  color: var(--papel);
+}
+
+.cardTitle {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(0.625rem, 4.2cqw, 0.8125rem);
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--papel-2);
+}
+
+/* La carta sin imagen. Mismo rectangulo, misma sombra, mismo boton: si desde
+   el sillon de enfrente se distingue por la silueta, el juego se rompe. */
+.cardBlank {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardBlank::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--rayado);
+}
+
+.cardBlank::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 62%;
+  background: linear-gradient(
+    to top,
+    var(--tinta) 30%,
+    color-mix(in oklab, var(--tinta) 55%, transparent) 70%,
+    transparent
+  );
+}
+
+.blankTop {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 7cqw 7cqw 0;
+}
+
+.blankDiamond {
+  color: var(--brasa);
+  font-size: clamp(0.5rem, 3.4cqw, 0.6875rem);
+  line-height: 1;
+}
+
+.blankEyebrow {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(0.5rem, 3.4cqw, 0.6875rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brasa);
+  white-space: nowrap;
+}
+
+.blankRule {
+  flex: 1;
+  height: 1px;
+  background: var(--linea-fuerte);
+}
+
+.blankBody {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4.5cqw;
+  padding: 0 7cqw 7cqw;
+  min-height: 0;
+}
+
+.impostorTitle {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-weight: 800;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.impostorTitleTop {
+  font-size: clamp(1.125rem, 11cqw, 2.125rem);
+  letter-spacing: -0.01em;
+  color: var(--papel-2);
+}
+
+.impostorTitleMain {
+  font-size: clamp(1.375rem, 13.2cqw, 2.625rem);
+  letter-spacing: -0.02em;
+  color: var(--papel);
+  overflow-wrap: anywhere;
+}
+
+.impostorUnderline {
+  width: 3.5rem;
+  height: 3px;
+  margin-top: 0.5rem;
+  background: var(--brasa);
+}
+
+/* La clase vive DENTRO de la carta del impostor, en el bloque ambar: es
+   informacion que solo existe para el. */
+.hintBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 3.5cqw 4.5cqw;
+  border: 1px solid var(--brasa-borde);
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--superficie-baja) 85%, transparent);
+}
+
+.hintLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(0.4375rem, 3.2cqw, 0.625rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brasa);
+}
+
+.hintValue {
+  font-size: clamp(0.75rem, 5.4cqw, 1.0625rem);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--papel);
+}
+
+.impostorCopy {
+  font-size: clamp(0.6875rem, 4.8cqw, 0.9375rem);
+  line-height: 1.5;
+  color: var(--papel-2);
+}
+
+/* ==== 05 · Ronda de pistas ============================================== */
+
+.order {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 3.75rem;
+  padding: var(--s2) var(--s3);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radius-md);
+}
+
+.orderNum {
+  flex: none;
+  width: 1.5rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 1.125rem;
+  color: var(--papel-2);
+}
+
+.orderName {
+  font-size: 1.1875rem;
+  font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* El primero es el unico item con relleno ambar y dos lineas: se ve desde el
+   otro lado de la mesa quien arranca. */
+.orderFirst {
+  background: var(--brasa);
+  border-color: var(--brasa);
+  color: var(--tinta);
+  min-height: 4rem;
+}
+
+.orderFirst .orderNum {
+  color: var(--tinta);
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.orderFirstText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.orderFirstName {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 112;
+  font-weight: 700;
+  font-size: 1.375rem;
+  line-height: 1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.orderFirstTag {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.orderArrow {
+  margin-left: auto;
+  flex: none;
+  font-size: 1.375rem;
+  line-height: 1;
+  animation: riftTick 1.8s ease-in-out infinite;
+}
+
+/* ==== 06 · Votacion ===================================================== */
+
+.voteList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.voteBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  width: 100%;
+  min-height: 4.25rem;
+  padding: var(--s1) var(--s3);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radius-md);
+  color: var(--papel);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1.1875rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.voteBtn:hover {
+  border-color: var(--linea-fuerte);
+}
+
+.voteBtnOn {
+  border-color: var(--brasa);
+  box-shadow:
+    inset 0 0 0 1px var(--brasa),
+    inset 0 0 0 5px var(--brasa-tenue);
+  font-weight: 600;
+}
+
+/* Disco con la inicial en vez del icono del campeon: asignarle un campeon al
+   azar a cada jugador puede caer justo en el secreto de la ronda y filtrarlo.
+   No vale la pena el adorno. */
+.voteAvatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--superficie-alta);
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 112;
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-transform: uppercase;
+  color: var(--papel-2);
+}
+
+.voteBtnOn .voteAvatar {
+  background: var(--brasa);
+  color: var(--tinta);
+}
+
+.voteName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.voteCheck {
+  flex: none;
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 50%;
+  background: var(--brasa);
+  color: var(--tinta);
+}
+
+.tieBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--linea);
+}
+
+.tieBtn {
+  min-height: var(--touch);
+  padding: var(--s2) var(--s3);
+  background: transparent;
+  border: 1px dashed var(--linea-fuerte);
+  border-radius: var(--radius-md);
+  color: var(--papel-2);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.tieBtn:hover {
+  border-color: var(--papel-2);
+  color: var(--papel);
+}
+
+.tieBtnOn {
+  border-style: solid;
+  border-color: var(--brasa);
+  color: var(--papel);
+  box-shadow: inset 0 0 0 1px var(--brasa);
+}
+
+/* ==== 07 · Revelacion =================================================== */
+
+/* El cuerpo de la revelacion pega la banda al borde: sin gutter arriba. */
+.bodyReveal {
+  gap: 0;
+  padding: 0 0 var(--s2);
+}
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding: var(--s4) var(--gutter) var(--s3);
+  color: var(--tinta);
+  /* El titular entra escalado a 1.18 desde el borde izquierdo. Sin recortar,
+     ese 18% de mas empuja el ancho del documento y la pagina scrollea sola de
+     costado medio segundo. `clip` y no `hidden`: no crea contenedor de scroll,
+     asi que no rompe los `sticky` de arriba y abajo. */
+  overflow: clip;
+}
+
+.bannerAmber {
+  background: var(--brasa);
+}
+
+.bannerMint {
+  background: var(--menta);
+}
+
+.bannerEyebrow {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.bannerTitle {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-weight: 800;
+  font-size: clamp(2rem, 11vw, 2.75rem);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  max-width: 12ch;
+  transform-origin: left center;
+  animation: riftSlam 0.5s var(--ease-slam) both;
+}
+
+.bannerLine {
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.champStrip {
+  display: flex;
+  gap: var(--s3);
+  align-items: flex-start;
+  padding: var(--s3) var(--gutter);
+  border-bottom: 1px solid var(--linea);
+}
+
+/* Unico momento del juego donde la imagen aparece en publico: entra con un
+   barrido vertical, no con un fundido. */
+.champThumb {
+  flex: none;
+  width: clamp(4.25rem, 22vw, 5.75rem);
+  aspect-ratio: 308 / 560;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--superficie);
+  animation: riftWipe var(--dur-slow) 0.2s var(--ease-out) both;
+}
+
+.champThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.champText {
+  /* `flex: 1` obligatorio: un container `inline-size` no se puede medir por su
+     contenido, asi que sin un ancho que venga del padre colapsa a cero. */
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding-top: 0.25rem;
+  container-type: inline-size;
+}
+
+.champName {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-weight: 800;
+  font-size: min(2.125rem, max(0.875rem, calc(100cqi / (var(--len, 8) * 0.9))));
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+
+.champTitle {
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: var(--papel-2);
+}
+
+.deltaHead {
+  padding: var(--s2) var(--gutter) 0;
+}
+
+.deltaList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+  margin: 0;
+  padding: 0.375rem var(--gutter) 0;
+  list-style: none;
+}
+
+.deltaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 2.75rem;
+  padding-inline: 0.875rem;
+}
+
+.deltaImpostor {
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radius);
+}
+
+.deltaMark {
+  flex: none;
+  width: 1.375rem;
+  text-align: center;
+  color: var(--papel-3);
+}
+
+.deltaImpostor .deltaMark::before {
+  content: "◆";
+}
+
+.deltaMarkOn {
+  color: var(--brasa);
+}
+
+.deltaName {
+  flex: 1;
+  min-width: 0;
+  font-size: 1.0625rem;
+  overflow-wrap: anywhere;
+}
+
+.deltaTag {
+  flex: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--papel-2);
+}
+
+.deltaValue {
+  flex: none;
+  width: 2.25rem;
+  text-align: right;
+  font-family: var(--font-mono), monospace;
+  font-size: 1.1875rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.deltaAmber {
+  color: var(--brasa);
+}
+
+.deltaMint {
+  color: var(--menta);
+}
+
+.deltaZero {
+  color: var(--papel-3);
+  font-weight: 400;
+}
+
+/* ==== 08 · Tabla ======================================================== */
+
+.bestBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: var(--s3);
+  background: var(--superficie);
+  border: 1px solid var(--linea);
+  border-radius: var(--radius-md);
+}
+
+.bestLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brasa);
+}
+
+.bestText {
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: 0 0.5rem 0.625rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--papel-3);
+  text-align: right;
+  border-bottom: 1px solid var(--linea);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 0.625rem 0.5rem;
+  text-align: right;
+  border-bottom: 1px solid var(--superficie-baja);
+  vertical-align: middle;
+}
+
+.table th:first-child,
+.table td:first-child {
+  width: 1.75rem;
+  padding-left: 0.5rem;
+  text-align: left;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+  text-align: left;
+  width: auto;
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: 0.5rem;
+}
+
+.rank {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.9375rem;
+  color: var(--papel-3);
+}
+
+.rowLead {
+  background: var(--superficie-baja);
+}
+
+.rowLead .rank {
+  color: var(--menta);
+}
+
+.playerCell {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  font-size: 1.0625rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.rowLead .playerCell {
+  font-weight: 600;
+}
+
+.winTag {
+  flex: none;
+  padding: 0.1875rem 0.4375rem;
+  border-radius: 5px;
+  background: var(--menta);
+  color: var(--tinta);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cellRatio {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  color: var(--papel-2);
+  white-space: nowrap;
+}
+
+.cellPoints {
+  font-family: var(--font-mono), monospace;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Estado vacio: la misma carta rayada de la 04, en chico. Es la marca grafica
+   del juego cuando no hay imagen. */
+.emptyCard {
+  width: 4rem;
+  height: 7rem;
+  border: 1px dashed var(--linea-fuerte);
+  border-radius: var(--radius-sm);
+  background-image: var(--rayado);
+}
+
+/* ==== 10 · Reglas (contenido indexable) ================================= */
+
+.rules {
+  max-width: 27.5rem;
+  margin: 0 auto;
+  /* clamp y no un breakpoint: el bloque de reglas es texto corrido y el
+     margen tiene que encogerse parejo, no de golpe. */
+  padding: var(--s6) clamp(1rem, 5vw, 1.5rem) 4rem;
+  border-top: 1px solid var(--linea);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+  container-type: inline-size;
+  container-name: rules;
+}
+
+/* Un contenedor no puede consultarse a si mismo: esto aplica solo a lo de
+   adentro, que es donde estaba el desborde (la tabla de puntajes). */
+@container rules (max-width: 24rem) {
+  .rules h2 {
+    font-size: 1.625rem;
+  }
+
+  .rules h3 {
+    font-size: 1.0625rem;
+  }
+
+  .scoreTable {
+    font-size: 0.875rem;
+  }
+
+  .scoreTable th {
+    letter-spacing: 0.04em;
+  }
+}
+
+@media (min-width: 48rem) {
+  .rules {
+    border-inline: 1px solid var(--linea);
+    background: var(--tinta);
+  }
+}
+
+.rulesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.rules h2 {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 118;
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.rules h3 {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-variation-settings: "wdth" 112;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.rules p {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--papel-2);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  display: flex;
+  gap: var(--s2);
+  counter-increment: step;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--papel-2);
+}
+
+.steps li::before {
+  content: "0" counter(step);
+  flex: none;
+  width: 1.5rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  color: var(--brasa);
+}
+
+.difficulty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.difficultyCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: var(--s2) var(--s3);
+  background: var(--superficie-baja);
+  border: 1px solid var(--linea);
+  border-radius: var(--radius);
+}
+
+.difficultyLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--papel);
+}
+
+.difficultyText {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--papel-2);
+}
+
+.scoreTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.scoreTable th,
+.scoreTable td {
+  padding: 0.875rem 0.5rem 0.875rem 0;
+  text-align: left;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--linea);
+  color: var(--papel-2);
+}
+
+.scoreTable th {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--papel-3);
+  border-top: 1px solid var(--linea);
+}
+
+/* Sin `nowrap`: "1 cada uno" / "1 each" tiene que poder partirse. Con la
+   fuente en 125% sobre un telefono de 320px, forzar una linea desbordaba la
+   tabla entera fuera de la pantalla. */
+.scoreTable th:not(:first-child),
+.scoreTable td:not(:first-child) {
+  text-align: right;
+  padding-right: 0;
+  padding-left: var(--s2);
+}
+
+.scoreTable th:first-child {
+  width: 55%;
+}
+
+.scoreTable td:nth-child(2) {
+  font-family: var(--font-mono), monospace;
+  font-size: 1.1875rem;
+  color: var(--brasa);
+}
+
+.scoreTable td:nth-child(3) {
+  font-family: var(--font-mono), monospace;
+  font-size: 1.1875rem;
+  color: var(--menta);
+}
+
+.tipBox {
+  padding: var(--s3);
+  border-radius: var(--radius);
+  background: var(--superficie-baja);
+}
+
+/* Sube la especificidad a proposito: `.rules p` la pisaria si no. */
+.rules p.legal {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--papel-3);
+}
+
+.backToGame {
+  align-self: flex-start;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--papel-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--linea-fuerte);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.backToGame:hover {
+  color: var(--brasa);
+  border-color: var(--brasa);
+}
+
+/* ==== Reduced motion ==================================================== */
+
+/* El barrido de la revelacion pasa a un corte con desvanecido, el halo del
+   boton se apaga y las entradas quedan estaticas. */
+@media (prefers-reduced-motion: reduce) {
+  .body,
+  .card,
+  .passName,
+  .bannerTitle,
+  .champThumb,
+  .orderArrow {
+    animation: none;
+  }
+
+  .champThumb {
+    clip-path: none;
+  }
+
+  .halo::before,
+  .shine {
+    display: none;
+  }
+}
