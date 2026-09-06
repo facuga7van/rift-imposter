@@ -1,6 +1,7 @@
 import { Game } from "@/components/Game";
 import { CHAMPIONS } from "@/data/champions";
 import { dict, type Lang } from "@/lib/i18n";
+import { suggestUrl } from "@/lib/site";
 import styles from "@/components/game.module.css";
 
 /** El juego (cliente) mas las reglas, que se renderizan en el server: es lo que
@@ -78,6 +79,33 @@ export function GamePage({ lang }: { lang: Lang }) {
         <div className={styles.rulesBlock}>
           <h3>{t.rules.tipHeading}</h3>
           <p className={styles.tipBox}>{t.rules.tip}</p>
+        </div>
+
+        {/* Unico canal de contacto posible sin backend: el formulario, el
+            almacenamiento y el aviso los pone GitHub. La contra es que hace
+            falta una cuenta, y por eso lo decimos antes de que toquen. */}
+        <div className={styles.rulesBlock}>
+          <h3>{t.rules.feedbackHeading}</h3>
+          <p>{t.rules.feedback}</p>
+          <a
+            className={styles.feedbackCta}
+            href={suggestUrl(lang)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t.rules.feedbackCta}
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                d="M6 3h7v7M13 3L4 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </a>
+          <span className={styles.note}>{t.rules.feedbackNote}</span>
         </div>
 
         <div className={styles.rulesBlock}>

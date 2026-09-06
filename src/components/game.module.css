@@ -1754,6 +1754,33 @@
   color: var(--papel-3);
 }
 
+/* Enlace saliente con peso de accion, pero sin robarle el registro al CTA
+   primario del juego: el ambar es de "repartir cartas", no de irse a GitHub. */
+.feedbackCta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--touch);
+  margin-top: 0.25rem;
+  padding-inline: var(--s3);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radius);
+  background: var(--superficie-baja);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--papel);
+  text-decoration: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.feedbackCta:hover {
+  border-color: var(--brasa);
+  color: var(--brasa);
+}
+
 .backToGame {
   align-self: flex-start;
   min-height: 2.75rem;

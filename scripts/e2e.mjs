@@ -317,6 +317,23 @@ const run = async () => {
   await page.waitForURL(`${BASE}/`);
   check("vuelve a ingles", (await page.locator("html").getAttribute("lang")) === "en");
 
+  // ------------------------------------------------------ canal de contacto
+  console.log("\n== Sugerencias ==");
+  const suggest = page.getByRole("link", { name: /Send a suggestion/ });
+  check("el bloque de sugerencias esta en la pagina", (await suggest.count()) === 1);
+  const href = await suggest.getAttribute("href");
+  // Apunta a la plantilla en ingles, no al selector generico: si alguien
+  // renombra el .yml, GitHub no da 404, cae al selector y nadie se entera.
+  check(
+    "el link va al formulario de sugerencia en ingles",
+    href === "https://github.com/facuga7van/rift-imposter/issues/new?template=suggestion.yml",
+    href ?? "sin href",
+  );
+  check("abre en pestaña nueva y sin filtrar la referencia",
+    (await suggest.getAttribute("target")) === "_blank" &&
+      (await suggest.getAttribute("rel"))?.includes("noopener"),
+  );
+
   // --------------------------------------------------------- layout mobile
   console.log("\n== Layout mobile (390px) ==");
   const overflow = await page.evaluate(() => ({

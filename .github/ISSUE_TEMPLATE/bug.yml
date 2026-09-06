@@ -1,0 +1,25 @@
+name: Algo se rompió / Something broke
+description: Reportar un problema del juego · Report a problem with the game
+labels: ["bug"]
+body:
+  - type: textarea
+    id: que-paso
+    attributes:
+      label: ¿Qué pasó? · What happened?
+      description: Y qué esperabas que pasara · And what you expected instead
+    validations:
+      required: true
+  - type: input
+    id: dispositivo
+    attributes:
+      label: Celular y navegador · Phone and browser
+      placeholder: iPhone 13, Safari · Pixel 7, Chrome
+    validations:
+      required: false
+  - type: input
+    id: idioma
+    attributes:
+      label: ¿En qué idioma? · Which language?
+      placeholder: español (/es) · English (/)
+    validations:
+      required: false

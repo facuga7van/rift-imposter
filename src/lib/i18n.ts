@@ -208,6 +208,13 @@ const en = {
       "The tension is in calibrating your clue. Too obvious and the impostor works the champion " +
       "out and blends right in. Too vague and everyone starts suspecting you. And hesitating too " +
       "long before you speak gives you away just as much.",
+    feedbackHeading: "Got an idea?",
+    feedback:
+      "Rift Impostor is open source and there's no form to fill in here, because there's no " +
+      "server behind this page. Suggestions and bug reports go to the repository on GitHub, " +
+      "where you can also see what other people already asked for.",
+    feedbackCta: "Send a suggestion",
+    feedbackNote: "Opens GitHub in a new tab. A free account is needed to post.",
     sourceHeading: "Where do the champions come from?",
     source:
       "Champion data and images come from Data Dragon, Riot Games' public CDN, so the list keeps " +
@@ -382,6 +389,13 @@ const es: Dict = {
       "La tensión está en calibrar la pista. Si sos muy obvio, el impostor deduce el campeón y se " +
       "camufla. Si sos muy vago, el resto va a sospechar de vos. Y si dudás mucho antes de hablar, " +
       "también te delata.",
+    feedbackHeading: "¿Se te ocurre algo?",
+    feedback:
+      "Rift Impostor es código abierto y acá no hay ningún formulario, porque no hay servidor " +
+      "detrás de esta página. Las sugerencias y los errores van al repositorio en GitHub, donde " +
+      "además podés ver lo que ya pidió el resto.",
+    feedbackCta: "Mandar una sugerencia",
+    feedbackNote: "Abre GitHub en una pestaña nueva. Hace falta una cuenta gratuita para escribir.",
     sourceHeading: "¿De dónde salen los campeones?",
     source:
       "Los datos y las imágenes vienen de Data Dragon, la CDN pública de Riot Games, así que la " +

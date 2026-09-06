@@ -1,0 +1,30 @@
+name: Suggestion
+description: An idea to make the game better
+labels: ["sugerencia"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. No need to make it formal — just tell us
+        what you thought of and why.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What's the idea?
+      placeholder: For example, being able to pick which region the champions come from.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it make the game better?
+      description: If it came up while playing, describe the moment. That helps more than the idea alone.
+    validations:
+      required: false
+  - type: input
+    id: context
+    attributes:
+      label: How many of you were playing?
+      placeholder: 5 people, on one phone
+    validations:
+      required: false

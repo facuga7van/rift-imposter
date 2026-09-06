@@ -1,0 +1,30 @@
+name: Sugerencia
+description: Una idea para mejorar el juego
+labels: ["sugerencia"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por tomarte el rato. No hace falta que sea nada formal:
+        contá qué se te ocurrió y por qué.
+  - type: textarea
+    id: idea
+    attributes:
+      label: ¿Qué se te ocurrió?
+      placeholder: Por ejemplo, poder elegir de qué región salen los campeones.
+    validations:
+      required: true
+  - type: textarea
+    id: porque
+    attributes:
+      label: ¿Por qué mejoraría la partida?
+      description: Si te pasó jugando, contá la situación. Sirve más que la idea sola.
+    validations:
+      required: false
+  - type: input
+    id: contexto
+    attributes:
+      label: ¿Con cuánta gente jugaban?
+      placeholder: 5 personas, en el celular de uno
+    validations:
+      required: false

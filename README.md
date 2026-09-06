@@ -95,7 +95,7 @@ key is a **build error**, not a string that silently falls back to English.
 ```bash
 npm run test:logic     # 25 checks de la lógica pura, 20.000 rondas por modo
 npm run serve:out      # sirve out/ en :4321, igual que nginx
-npm run test:e2e       # 96 checks en Chromium, viewport de celular
+npm run test:e2e       # 99 checks en Chromium, viewport de celular
 npm run audit          # layout: 2 idiomas x 8 resoluciones x 2 zooms
 npm run shots          # lo mismo, y además guarda capturas en D:/tmp/rift-shots
 ```
@@ -197,6 +197,22 @@ share.
 
 `src/lib/game.ts` deliberately imports nothing from React, so it can be tested
 with plain Node without mounting a component.
+
+## Sugerencias
+
+No hay formulario en la página porque no hay servidor detrás: el canal es
+[GitHub Issues](https://github.com/facuga7van/rift-imposter/issues). GitHub pone
+el formulario, el almacenamiento y el aviso por mail, y el sitio sigue sin
+guardar un dato de nadie.
+
+Las plantillas viven en `.github/ISSUE_TEMPLATE/` y hay una por idioma
+(`sugerencia.yml` y `suggestion.yml`), porque el link del bloque de sugerencias
+apunta a la del idioma en el que se está jugando. **Si se renombra un `.yml`, el
+link no da 404**: GitHub cae al selector genérico y nadie se entera. Por eso el
+E2E verifica el `href` exacto.
+
+La contra de este canal es real y está dicha en la página: hace falta una cuenta
+de GitHub para escribir. Es el precio de no tener backend.
 
 ## Legal
 
