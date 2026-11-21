@@ -12,7 +12,7 @@
  * zoom) lo prueba `scripts/audit.mjs`, que es otra cosa y corre aparte.
  */
 import { chromium } from "playwright";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const BASE = process.env.E2E_BASE ?? "http://127.0.0.1:4321";
 const SHOTS = "D:/tmp/shots";
@@ -341,6 +341,88 @@ const run = async () => {
     inner: window.innerWidth,
   }));
   check("sin scroll horizontal", overflow.scroll <= overflow.inner, JSON.stringify(overflow));
+
+  // ------------------------------------------------------------- ganador
+  console.log("\n== Pantalla del ganador (escritorio) ==");
+  // Escritorio: sin `pointer: coarse` el compartir cae al portapapeles. Y sin
+  // `canShare` el de la imagen cae a la descarga, que es lo que se puede probar.
+  const desk = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+    permissions: ["clipboard-read", "clipboard-write"],
+    acceptDownloads: true,
+  });
+  await desk.addInitScript(() => Object.defineProperty(navigator, "canShare", { value: undefined }));
+  const dp = await desk.newPage();
+  dp.on("console", (m) => m.type() === "error" && consoleErrors.push(m.text()));
+  dp.on("pageerror", (e) => consoleErrors.push(`pageerror: ${e.message}`));
+
+  await dp.goto(BASE, { waitUntil: "networkidle" });
+  // Todos a un punto de ganar: cualquier desenlace de la ronda deja a alguien en 10 o mas.
+  await dp.evaluate((names) => {
+    const players = names.slice(0, 4).map((name, i) => ({ id: `p${i + 1}`, name }));
+    localStorage.setItem("rift.players", JSON.stringify(players));
+    localStorage.setItem(
+      "rift.stats",
+      JSON.stringify(Object.fromEntries(players.map((p) => [p.id, { points: 9, roundsAsImpostor: 0, impostorWins: 0 }]))),
+    );
+  }, NAMES);
+  await dp.reload({ waitUntil: "networkidle" });
+  await dp.getByRole("button", { name: "Deal the cards" }).click();
+  const w = await dealAll(dp, 4);
+  await dp.getByRole("button", { name: "Clues are done, let's vote" }).click();
+  await voteFor(dp, null); // empate: zafa el impostor y se lleva 3 -> 12
+
+  check("con ganador, la ronda ofrece ver al ganador", await dp.getByRole("button", { name: "See the winner" }).isVisible());
+  check("con ganador, ya no hay siguiente ronda", (await dp.getByRole("button", { name: "Next round" }).count()) === 0);
+  await dp.getByRole("button", { name: "See the winner" }).click();
+
+  const winnerH = dp.locator("main h2").first();
+  await winnerH.waitFor();
+  check("el ganador es el impostor que zafo", (await winnerH.textContent()).trim() === w.impostor, await winnerH.textContent());
+  check("el podio lista 3", (await dp.locator("main ol li").count()) === 3);
+  check("aparece el mejor impostor", await dp.getByText("Best impostor").isVisible());
+  check(
+    "estan los tres botones",
+    (
+      await Promise.all(
+        ["Share the result", "Share as image", "New game"].map((n) => dp.getByRole("button", { name: n }).count()),
+      )
+    ).every((c) => c === 1),
+  );
+  await shot(dp, "winner");
+
+  await dp.reload({ waitUntil: "networkidle" });
+  check("el ganador sobrevive al refresco", await dp.getByRole("button", { name: "New game" }).isVisible());
+
+  await dp.getByRole("button", { name: "Share the result" }).click();
+  await dp.getByRole("button", { name: "Link copied" }).waitFor({ timeout: 3000 }).catch(() => {});
+  check("tras copiar aparece la confirmacion", await dp.getByRole("button", { name: "Link copied" }).isVisible());
+  const clip = await dp.evaluate(() => navigator.clipboard.readText());
+  check(
+    "el portapapeles trae texto + URL",
+    clip === `${w.impostor} won Rift Impostor with 12 points. Think you can beat them? \u{1F575}\uFE0F https://rift.wampaland.com.ar/`,
+    clip,
+  );
+
+  const [download] = await Promise.all([
+    dp.waitForEvent("download", { timeout: 15000 }),
+    dp.getByRole("button", { name: "Share as image" }).click(),
+  ]);
+  const png = await readFile(await download.path());
+  check("la imagen baja con nombre .png", download.suggestedFilename() === "rift-impostor-result.png", download.suggestedFilename());
+  check(
+    "la imagen es un PNG de 1080x1350",
+    png.subarray(1, 4).toString() === "PNG" && png.readUInt32BE(16) === 1080 && png.readUInt32BE(20) === 1350,
+    `${png.length} bytes`,
+  );
+  check("la imagen no esta vacia", png.length > 20000, `${png.length} bytes`);
+  await writeFile(`${SHOTS}/result-card.png`, png);
+
+  await dp.getByRole("button", { name: "New game" }).click();
+  await dp.getByRole("button", { name: "Deal the cards" }).waitFor();
+  check("nueva partida conserva a los jugadores", (await dp.getByLabel("Name of player 1", { exact: true }).inputValue()) === NAMES[0]);
+  check("nueva partida deja los puntos en cero", (await dp.evaluate(() => localStorage.getItem("rift.stats"))) === "{}");
+  await desk.close();
 
   // ------------------------------------------------------------- consola
   console.log("\n== Consola ==");

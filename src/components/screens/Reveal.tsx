@@ -19,6 +19,8 @@ type Props = {
   tally?: Record<string, number>;
   onNextRound?: () => void;
   onScores?: () => void;
+  /** Alguien llego a TARGET_POINTS: reemplaza a "Siguiente ronda". */
+  onWinner?: () => void;
   footer?: ReactNode;
 };
 
@@ -33,6 +35,7 @@ export function Reveal({
   tally,
   onNextRound,
   onScores,
+  onWinner,
   footer,
 }: Props) {
   const byId = new Map(players.map((p) => [p.id, p]));
@@ -115,8 +118,13 @@ export function Reveal({
         </ul>
       </div>
 
-      {(onNextRound || onScores || footer) && (
+      {(onNextRound || onScores || onWinner || footer) && (
         <div className={styles.dock}>
+          {onWinner && (
+            <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={onWinner}>
+              {t.reveal.seeWinner}
+            </button>
+          )}
           {onNextRound && (
             <button
               type="button"

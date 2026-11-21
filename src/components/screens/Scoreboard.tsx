@@ -15,13 +15,15 @@ type Props = {
   onReset?: () => void;
   /** Reemplaza el dock entero. El modo online lo usa en `end`. */
   footer?: ReactNode;
+  /** Acciones de compartir, debajo de la tabla. El modo online las pone en `end`. */
+  share?: ReactNode;
 };
 
 /** El boton de reiniciar se convierte en "¿Seguro?" y vuelve solo. Sin modal:
  *  un dialogo a pantalla completa para borrar puntos es desproporcionado. */
 const CONFIRM_MS = 4000;
 
-export function Scoreboard({ t, players, stats, roundsPlayed, onBack, onSetup, onReset, footer }: Props) {
+export function Scoreboard({ t, players, stats, roundsPlayed, onBack, onSetup, onReset, footer, share }: Props) {
   const [confirming, setConfirming] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -120,6 +122,8 @@ export function Scoreboard({ t, players, stats, roundsPlayed, onBack, onSetup, o
             })}
           </tbody>
         </table>
+
+        {share && <div className={styles.stack}>{share}</div>}
       </div>
 
       <div className={styles.dock}>

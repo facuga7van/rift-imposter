@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/lib/game";
 import type { Dict } from "@/lib/i18n";
 import type { Snapshot } from "@/lib/room/protocol";
+import { ShareButton } from "../ShareButton";
 import styles from "../game.module.css";
 import online from "./online.module.css";
 
@@ -17,30 +17,11 @@ type Props = {
 };
 
 export function Lobby({ t, snap, shareUrl, onRoleHint, onStart, onKick }: Props) {
-  const [copied, setCopied] = useState(false);
   const isHost = snap.you.isHost;
   const seats = snap.seats.filter((s) => !s.gone);
   const connected = seats.filter((s) => s.connected).length;
   const canStart = connected >= MIN_PLAYERS;
   const roleHint = snap.settings.roleHint;
-
-  const share = async () => {
-    // En escritorio el dialogo de compartir del sistema estorba: copiar es lo que se espera.
-    if (navigator.share && window.matchMedia("(pointer: coarse)").matches) {
-      try {
-        await navigator.share({ title: "Rift Impostor", text: t.online.shareText, url: shareUrl });
-        return;
-      } catch (e) {
-        if ((e as Error).name === "AbortError") return; // lo cancelo el usuario
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-    } catch {
-      // Sin permiso de portapapeles: el codigo igual esta a la vista.
-    }
-  };
 
   return (
     <>
@@ -48,9 +29,14 @@ export function Lobby({ t, snap, shareUrl, onRoleHint, onStart, onKick }: Props)
         <div className={styles.stack}>
           <span className={styles.fieldLabel}>{t.online.roomCode}</span>
           <p className={`${styles.passName} ${online.code} mono`}>{snap.code}</p>
-          <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={share}>
-            {copied ? t.online.copied : t.online.share}
-          </button>
+          <ShareButton
+            title="Rift Impostor"
+            text={t.online.shareText}
+            url={shareUrl}
+            copyText={shareUrl}
+            label={t.online.share}
+            copiedLabel={t.online.copied}
+          />
         </div>
 
         <div>

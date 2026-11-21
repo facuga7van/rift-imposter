@@ -1619,6 +1619,17 @@
   text-transform: uppercase;
 }
 
+/* Va DESPUES de la regla base a proposito: el bloque @container de arriba
+   queda pisado por `.rules h2` (misma especificidad, aparece antes). Con el
+   texto al 125% la palabra mas larga de un titular ("Frequently") no entra en
+   el ancho util y empujaba la pagina de costado. Umbral bajo para no tocar
+   los titulares en celulares normales. */
+@container rules (max-width: 18rem) {
+  .rules h2 {
+    font-size: 1.625rem;
+  }
+}
+
 .rules h3 {
   font-family: var(--font-display), var(--font-sans), sans-serif;
   font-variation-settings: "wdth" 112;
@@ -1826,4 +1837,36 @@
   .shine {
     display: none;
   }
+}
+
+/* ==== Aviso legal de Riot (todas las paginas) =========================== */
+
+.legalFooter {
+  max-width: 27.5rem;
+  margin: 0 auto;
+  padding: var(--s4) clamp(1rem, 5vw, 1.5rem) var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--papel-3);
+}
+
+.legalOriginal {
+  font-size: 0.6875rem;
+  opacity: 0.85;
+}
+
+.faqItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding-top: var(--s2);
+}
+
+.rules .faqItem h3 {
+  font-size: 1rem;
+  text-transform: none;
 }

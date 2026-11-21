@@ -35,7 +35,7 @@ const check = (label, cond, detail = "") => {
 const spreadOf = (d, exp) => Math.max(...Object.values(d).map((v) => Math.abs(v - exp) / exp));
 
 const players = ["Ana", "Beto", "Cami", "Dani", "Eze"].map((n, i) => ({ id: `p${i}`, name: n }));
-const N = 20000;
+const N = 100000; // ponytail: con 20k el chequeo de uniformidad fallaba ~0,5% de las corridas y frenaba el deploy
 
 // ---- el bug que reporto el usuario jugando --------------------------------
 console.log("\n== Clase del campeon ==");
