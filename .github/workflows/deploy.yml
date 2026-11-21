@@ -43,3 +43,12 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Avisa a IndexNow (Bing, Yandex, etc.) de las URLs. Si falla, no tumba el deploy.
+      - name: Notify IndexNow
+        continue-on-error: true
+        run: >-
+          curl -s -X POST https://api.indexnow.org/indexnow
+          -H 'Content-Type: application/json; charset=utf-8'
+          -d '{"host":"rift.wampaland.com.ar","key":"152728ff7a54dc9365305a121a14c24f","keyLocation":"https://rift.wampaland.com.ar/152728ff7a54dc9365305a121a14c24f.txt","urlList":["https://rift.wampaland.com.ar/","https://rift.wampaland.com.ar/es","https://rift.wampaland.com.ar/play","https://rift.wampaland.com.ar/es/jugar"]}'
+          -w '%{http_code}\n'
