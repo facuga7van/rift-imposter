@@ -80,3 +80,17 @@ export function buildOnlineMetadata(lang: Lang): Metadata {
     },
   };
 }
+
+/** FAQPage a partir del mismo diccionario que pinta la seccion visible: una sola fuente. */
+export function buildFaqJsonLd(lang: Lang) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    inLanguage: LANG_META[lang].htmlLang,
+    mainEntity: dict(lang).faq.items.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
+  };
+}

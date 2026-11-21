@@ -1,6 +1,7 @@
 import { Game } from "@/components/Game";
 import { CHAMPIONS } from "@/data/champions";
 import { dict, type Lang } from "@/lib/i18n";
+import { buildFaqJsonLd } from "@/lib/metadata";
 import { suggestUrl } from "@/lib/site";
 import styles from "@/components/game.module.css";
 
@@ -79,6 +80,20 @@ export function GamePage({ lang }: { lang: Lang }) {
         <div className={styles.rulesBlock}>
           <h3>{t.rules.tipHeading}</h3>
           <p className={styles.tipBox}>{t.rules.tip}</p>
+        </div>
+
+        <div className={styles.rulesBlock}>
+          <h2>{t.faq.heading}</h2>
+          {t.faq.items.map(({ q, a }) => (
+            <div key={q} className={styles.faqItem}>
+              <h3>{q}</h3>
+              <p>{a}</p>
+            </div>
+          ))}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(buildFaqJsonLd(lang)) }}
+          />
         </div>
 
         {/* Las sugerencias van a GitHub Issues. Hace falta una cuenta, y por eso lo decimos antes de que toquen. */}

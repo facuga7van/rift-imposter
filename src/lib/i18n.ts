@@ -1,4 +1,11 @@
 import type { Role } from "@/data/champions";
+import {
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  POINTS_CREW_CATCHES,
+  POINTS_IMPOSTOR_ESCAPES,
+  TARGET_POINTS,
+} from "./game";
 
 export const LANGS = ["en", "es"] as const;
 export type Lang = (typeof LANGS)[number];
@@ -228,6 +235,43 @@ const en = {
     source:
       "Champion data and images come from Data Dragon, Riot Games' public CDN, so the list keeps " +
       "up with every new champion. Rift Impostor is a fan project.",
+  },
+  faq: {
+    heading: "Frequently asked questions",
+    items: [
+      {
+        q: "What is Rift Impostor?",
+        a: "Rift Impostor is a free social deduction party game played with League of Legends champions. Everyone sees the same secret champion except one player, the impostor, who has to bluff their way through the clues without getting caught.",
+      },
+      {
+        q: "How do you play Rift Impostor?",
+        a: "Each player privately looks at their card, then everyone says one word about the champion, in order. After the clues the group votes on who they think the impostor is: if they pick right the impostor is caught, otherwise the impostor gets away.",
+      },
+      {
+        q: "How many players do you need?",
+        a: `Rift Impostor plays with ${MIN_PLAYERS} to ${MAX_PLAYERS} players. It works best with a group of 5 to 8 friends sitting together or on the same voice call.`,
+      },
+      {
+        q: "Can you play Rift Impostor online or on Discord?",
+        a: "Yes. Create a room on the online mode, share the link, and everyone joins from their own phone or computer. Clues and arguing happen out loud on your Discord (or any voice) call, and the votes are cast in the app.",
+      },
+      {
+        q: "Is it free? Do I need to sign up or download anything?",
+        a: "Rift Impostor is completely free, with no sign-up and nothing to download. It runs in your browser on any phone, tablet or computer.",
+      },
+      {
+        q: "Do I need to know League of Legends to play?",
+        a: "It helps, but you don't need to be an expert. You can tell the impostor the champion's class (mage, tank, marksman and so on) to give them something to bluff with, or turn that off for hard mode.",
+      },
+      {
+        q: "Does Rift Impostor work on mobile?",
+        a: "Yes, it is built for phones first. In local mode a single phone is passed around the group, and in online mode everyone uses their own device.",
+      },
+      {
+        q: "How are points scored?",
+        a: `If the impostor gets away or the vote ties, the impostor scores ${POINTS_IMPOSTOR_ESCAPES} points. If the group votes them out, every other player scores ${POINTS_CREW_CATCHES} point. The first player to reach ${TARGET_POINTS} points wins the game.`,
+      },
+    ],
   },
   online: {
     metaTitle: "Play online",
@@ -472,6 +516,43 @@ const es: Dict = {
     source:
       "Los datos y las imágenes vienen de Data Dragon, la CDN pública de Riot Games, así que la " +
       "lista se mantiene al día con cada campeón nuevo. Rift Impostor es un proyecto de fans.",
+  },
+  faq: {
+    heading: "Preguntas frecuentes",
+    items: [
+      {
+        q: "¿Qué es Rift Impostor?",
+        a: "Rift Impostor es un juego de deducción social gratuito con campeones de League of Legends. Todos ven el mismo campeón secreto menos uno, el impostor, que tiene que zafar de las pistas sin que lo descubran.",
+      },
+      {
+        q: "¿Cómo se juega a Rift Impostor?",
+        a: "Cada jugador mira su carta a solas y después todos dicen una palabra sobre el campeón, por turnos. Terminadas las pistas el grupo vota quién cree que es el impostor: si acierta lo atrapan, y si no, el impostor zafa.",
+      },
+      {
+        q: "¿Cuántos jugadores hacen falta?",
+        a: `Se juega de ${MIN_PLAYERS} a ${MAX_PLAYERS} jugadores. Funciona mejor con un grupo de 5 a 8 amigos, juntos en una mesa o en la misma llamada.`,
+      },
+      {
+        q: "¿Se puede jugar online o por Discord?",
+        a: "Sí. Creás una sala en el modo online, compartís el link y cada uno entra desde su celular o su compu. Las pistas y la discusión se hablan en voz alta en la llamada de Discord (o la que uses) y el voto se hace en la app.",
+      },
+      {
+        q: "¿Es gratis? ¿Hay que registrarse o descargar algo?",
+        a: "Es totalmente gratis, sin registro y sin descargar nada. Funciona en el navegador, desde cualquier celular, tablet o compu.",
+      },
+      {
+        q: "¿Hace falta saber de League of Legends?",
+        a: "Ayuda, pero no hace falta ser experto. Podés decirle al impostor la clase del campeón (mago, tanque, tirador, etc.) para que tenga de dónde agarrarse, o desactivarlo para jugar en modo difícil.",
+      },
+      {
+        q: "¿Funciona en el celular?",
+        a: "Sí, está pensado primero para celulares. En el modo local se pasa un solo celular de mano en mano, y en el modo online cada uno usa el suyo.",
+      },
+      {
+        q: "¿Cómo se suman los puntos?",
+        a: `Si el impostor zafa o la votación queda empatada, el impostor suma ${POINTS_IMPOSTOR_ESCAPES} puntos. Si el grupo lo echa, cada uno de los demás suma ${POINTS_CREW_CATCHES} punto. Gana el primero en llegar a ${TARGET_POINTS} puntos.`,
+      },
+    ],
   },
   online: {
     metaTitle: "Jugar online",
