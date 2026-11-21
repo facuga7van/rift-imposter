@@ -285,6 +285,14 @@ function closeVote(s: RoomState): RoomState {
   };
 }
 
+function nextRound(s: RoomState, connected: readonly string[]): RoomState {
+  const clean = dropGone(s);
+  // `end` conserva la ronda y el resultado: el snapshot de end los sigue mostrando.
+  if (Object.values(clean.stats).some((st) => st.points >= TARGET_POINTS)) return { ...clean, phase: "end" };
+  if (connectedSeats(clean, connected).length < MIN_PLAYERS) return toLobby(clean);
+  return startRound(clean, connected);
+}
+
 function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError {
   if (e.type === "sync") return s;
   if (e.type === "hello") return hello(s, e, ctx);
@@ -325,7 +333,10 @@ function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError 
       // Mas de la mitad: asi un anfitrion impostor no puede cerrar con 0 votos.
       return voted * 2 > active.length ? closeVote(s) : s;
     }
-    // [T9] despues del reveal
+    case "nextRound":
+      return isHost && s.phase === "reveal" ? nextRound(s, ctx.connected) : s;
+    case "newGame":
+      return isHost && s.phase === "end" ? { ...toLobby(s), stats: {}, roundsPlayed: 0 } : s;
     // [T10] salidas y expulsiones
     default:
       return s;

@@ -321,6 +321,52 @@ section("Votacion");
   check("un anfitrion (impostor o no) no cierra con 0 votos", t.state === before);
 }
 
+// ---- despues del reveal -------------------------------------------------
+section("Despues del reveal");
+{
+  const t = table();
+  catchImpostor(t);
+  t.send(host(t), { type: "nextRound" });
+  check("nextRound con 3 conectados reparte de nuevo", t.state.phase === "deal" && t.state.round !== null);
+  check(
+    "la ronda nueva limpia votos, listos y resultado",
+    Object.keys(t.state.votes).length === 0 &&
+      t.state.ready.length === 0 &&
+      t.state.outcome === null &&
+      t.state.tally === null,
+  );
+  check("los puntajes se mantienen", Object.values(t.state.stats).some((s) => s.points > 0));
+}
+{
+  const t = table();
+  catchImpostor(t);
+  t.drop(t.ids.find((id) => id !== host(t)));
+  t.send(host(t), { type: "nextRound" });
+  check("nextRound con menos de 3 conectados vuelve al lobby", t.state.phase === "lobby");
+}
+{
+  const t = table();
+  t.state = {
+    ...t.state,
+    stats: Object.fromEntries(
+      t.ids.map((id) => [id, { points: TARGET_POINTS - 1, roundsAsImpostor: 0, impostorWins: 0 }]),
+    ),
+  };
+  catchImpostor(t);
+  check("la ronda que define la partida igual pasa por reveal", t.state.phase === "reveal");
+  t.send(host(t), { type: "nextRound" });
+  check("si alguien llego a la meta, nextRound va a end", t.state.phase === "end");
+  let before = t.state;
+  t.send(t.ids.find((id) => id !== host(t)), { type: "newGame" });
+  check("newGame de un no-anfitrion se descarta", t.state === before);
+  t.send(host(t), { type: "newGame" });
+  check("newGame vuelve al lobby", t.state.phase === "lobby");
+  check(
+    "newGame pone los puntajes en 0",
+    Object.keys(t.state.stats).length === 0 && t.state.roundsPlayed === 0,
+  );
+}
+
 // ---- resumen ---------------------------------------------------------------
 console.log(`\n${"=".repeat(52)}`);
 console.log(`${ok} checks OK, ${fails.length} fallaron`);
