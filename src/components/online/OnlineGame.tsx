@@ -235,8 +235,9 @@ export function OnlineGame({ lang }: { lang: Lang }) {
   } else if (!snap) screen = <Loading text={t.online.connecting} />;
   else screen = phaseScreen(snap);
 
+  const reconnecting = room.status === "reconnecting" && name !== null;
   const context =
-    room.status === "reconnecting" && name !== null
+    reconnecting
       ? t.online.reconnecting
       : !inRoom || !snap
         ? null
@@ -276,6 +277,11 @@ export function OnlineGame({ lang }: { lang: Lang }) {
       nav={nav}
       context={context}
     >
+      {/* Siempre montado: una region viva que aparece junto con su texto no se
+          anuncia. La banda de contexto dice lo mismo, pero solo a la vista. */}
+      <p className="srOnly" role="status">
+        {reconnecting ? t.online.reconnecting : ""}
+      </p>
       {screen}
     </Shell>
   );

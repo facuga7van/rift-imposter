@@ -168,6 +168,7 @@ export function useRoom(code: string | null, name: string | null) {
         wsRef.current = null;
         ws.close();
         connect();
+        setStatus("reconnecting"); // connect() dice "connecting" con attempt en 0, y esto no es la primera vez
       }, PONG_TIMEOUT_MS);
     };
 
