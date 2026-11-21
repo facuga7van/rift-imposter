@@ -2,3 +2,7 @@
   Content-Type: image/png
 /es/opengraph-image-*
   Content-Type: image/png
+/icon
+  Content-Type: image/png
+/apple-icon
+  Content-Type: image/png
