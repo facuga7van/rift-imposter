@@ -2,7 +2,7 @@
   "name": "rift-impostor",
   "version": "2.0.0",
   "private": true,
-  "description": "Social deduction game with League of Legends champions. One phone, passed around. English and Spanish.",
+  "description": "Social deduction game with League of Legends champions. One phone passed around, or online with everyone on their own device. English and Spanish.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

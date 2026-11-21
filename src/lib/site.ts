@@ -4,9 +4,7 @@
  */
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://riftimpostor.com";
 
-/** Repositorio publico. Es el unico canal de sugerencias que puede tener un
- *  sitio sin backend: GitHub pone el formulario, el almacenamiento y el mail
- *  de aviso, y nosotros no guardamos ni un dato de nadie. */
+/** Repositorio publico. Las sugerencias van a sus Issues. */
 export const REPO_URL = "https://github.com/facuga7van/rift-imposter";
 
 /** Formulario de sugerencia en el idioma de quien juega. Las plantillas viven

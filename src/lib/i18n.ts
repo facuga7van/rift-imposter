@@ -15,6 +15,9 @@ export function pathFor(lang: Lang): string {
   return lang === DEFAULT_LANG ? "/" : `/${lang}`;
 }
 
+/** Paginas del modo online. El codigo de sala viaja en `?c=` y se lee en el cliente. */
+export const ONLINE_PATH: Record<Lang, string> = { en: "/play", es: "/es/jugar" };
+
 export function otherLang(lang: Lang): Lang {
   return lang === "en" ? "es" : "en";
 }
@@ -43,8 +46,8 @@ const en = {
     title: "Rift Impostor — The impostor game with League of Legends champions",
     description:
       "Social deduction game with League of Legends champions. Everyone sees the same " +
-      "champion except one, who has to fake it. Free, no signup, one phone passed " +
-      "around. 3 to 10 players.",
+      "champion except one, who has to fake it. Free, no signup: pass one phone around or " +
+      "play online, each on your own device. 3 to 10 players.",
     keywords: [
       "impostor game",
       "league of legends party game",
@@ -58,7 +61,7 @@ const en = {
     ],
     tagline: "One player doesn't know the champion. They have to fake it.",
     /** Solo para el rail decorativo de escritorio. */
-    railMeta: "3–10 players · one phone · no signup",
+    railMeta: "3–10 players · one phone or online · no signup",
   },
   // En singular: el unico lugar donde aparecen es "The champion is a ___".
   roles: {
@@ -94,6 +97,7 @@ const en = {
     roleHintOn: "The impostor will know it's a mage, a tank, a marksman… Something to bluff with.",
     roleHintOff: "Hard mode. The impostor gets nothing at all and has to read the room.",
     start: "Deal the cards",
+    playOnline: "Play online",
   },
   deal: {
     counter: (i: number, n: number) => `Card ${i} of ${n}`,
@@ -177,8 +181,8 @@ const en = {
     heading: "How to play",
     intro: (n: number) =>
       `Rift Impostor is a social deduction game for 3 to 10 people using the ${n} League of ` +
-      "Legends champions. You play it on a single phone passed around the group. No signup, " +
-      "nothing to install.",
+      "Legends champions. Play it on a single phone passed around the group, or online with " +
+      "everyone on their own device (made for Discord calls). No signup, nothing to install.",
     stepsHeading: "A round, step by step",
     steps: [
       "The game secretly picks one champion out of every champion in the game.",
@@ -212,9 +216,8 @@ const en = {
       "long before you speak gives you away just as much.",
     feedbackHeading: "Got an idea?",
     feedback:
-      "Rift Impostor is open source and there's no form to fill in here, because there's no " +
-      "server behind this page. Suggestions and bug reports go to the repository on GitHub, " +
-      "where you can also see what other people already asked for.",
+      "Rift Impostor is open source. Suggestions and bug reports go to the repository on " +
+      "GitHub, where you can also see what other people already asked for.",
     feedbackCta: "Send a suggestion",
     feedbackNote: "Opens GitHub in a new tab. A free account is needed to post.",
     sourceHeading: "Where do the champions come from?",
@@ -222,6 +225,68 @@ const en = {
       "Champion data and images come from Data Dragon, Riot Games' public CDN, so the list keeps " +
       "up with every new champion. Rift Impostor is a fan project. It isn't endorsed by Riot " +
       "Games and doesn't reflect their views.",
+  },
+  online: {
+    metaTitle: "Play online",
+    metaDescription:
+      "Create a room, share the link and play Rift Impostor with everyone on their own " +
+      "device. Made for Discord calls: clues and arguing stay on voice.",
+    headline: "Play online",
+    lede: "Everyone on their own device. Clues and arguing stay on the call.",
+    create: "Create a room",
+    creating: "Creating…",
+    createFailed: "Couldn't create the room. Try again in a moment.",
+    codeLabel: "Room code",
+    join: "Join",
+    badCode: "A code is 4 letters or numbers",
+    nameLabel: "Your name",
+    nameLede: "This is how the others will see you.",
+    enter: "Enter the room",
+    connecting: "Connecting to the room…",
+    roomLabel: (code: string) => `Room ${code}`,
+    roomCode: "Room code",
+    share: "Share the link",
+    copied: "Link copied",
+    shareText: "Join my Rift Impostor room",
+    playersLabel: "Players",
+    host: "host",
+    you: "you",
+    online: "connected",
+    offline: "disconnected",
+    kick: (name: string) => `Remove ${name}`,
+    start: "Start the game",
+    needPlayers: (n: number) => `You need ${n} connected players`,
+    waitHost: "Waiting for the host…",
+    leave: "Leave",
+    cancelRound: "Cancel round",
+    yourCard: "Your card",
+    dealLede: "Make sure nobody else can see your screen.",
+    ready: "I've seen it",
+    readyCount: (k: number, n: number) => `${k} of ${n} ready`,
+    advanceDeal: "Go to clues",
+    waitingTitle: "You're in",
+    waitingText: "You joined mid-round. You play from the next one.",
+    voteLede: "Argue on the call, then vote here. You can change your vote until it closes.",
+    voteTie: "Nobody, I'm not sure",
+    voteConfirm: "Send my vote",
+    voteSent: "your vote is in",
+    votedCount: (k: number, n: number) => `${k} of ${n} voted`,
+    closeVote: "Close the vote",
+    newGame: "New game",
+    reconnecting: "Reconnecting…",
+    errors: {
+      room_not_found: "That room doesn't exist or it expired.",
+      room_full: "That room is full. 10 players max.",
+      bad_version: "There's a new version of the game.",
+      kicked: "The host removed you from the room.",
+      replaced: "This room is open in another tab.",
+      too_big: "Something went wrong with the connection.",
+      rate_limited: "Too many messages in a row.",
+    },
+    createNew: "Create a new room",
+    reload: "Reload",
+    joinAgain: "Join again",
+    leftPlayer: "A player who left",
   },
 };
 
@@ -232,8 +297,8 @@ const es: Dict = {
     title: "Rift Impostor — El juego del impostor con campeones del LoL",
     description:
       "Juego del impostor con campeones de League of Legends. Todos ven el mismo campeón " +
-      "menos uno, que tiene que fingir. Gratis, sin registro, desde un solo celular que se " +
-      "pasa de mano. De 3 a 10 jugadores.",
+      "menos uno, que tiene que fingir. Gratis y sin registro: con un solo celular que se " +
+      "pasa de mano u online, cada uno desde el suyo. De 3 a 10 jugadores.",
     keywords: [
       "juego del impostor",
       "impostor lol",
@@ -246,7 +311,7 @@ const es: Dict = {
       "juegos para previas",
     ],
     tagline: "Uno no sabe cuál es el campeón. Tiene que fingir que sí.",
-    railMeta: "3–10 jugadores · un celular · sin registro",
+    railMeta: "3–10 jugadores · un celular u online · sin registro",
   },
   roles: {
     Assassin: "asesino",
@@ -279,6 +344,7 @@ const es: Dict = {
     roleHintOn: "El impostor va a saber si es un mago, un tanque, un tirador… Algo para arrancar.",
     roleHintOff: "Modo difícil. El impostor no sabe absolutamente nada y tiene que leer la mesa.",
     start: "Repartir cartas",
+    playOnline: "Jugar online",
   },
   deal: {
     counter: (i, n) => `Carta ${i} de ${n}`,
@@ -359,8 +425,9 @@ const es: Dict = {
     heading: "Cómo se juega",
     intro: (n) =>
       `Rift Impostor es un juego de deducción social para 3 a 10 personas con los ${n} campeones ` +
-      "de League of Legends. Se juega desde un solo celular que se pasa de mano en mano. No hace " +
-      "falta registrarse ni instalar nada.",
+      "de League of Legends. Se juega desde un solo celular que se pasa de mano en mano, u online " +
+      "con cada uno desde su dispositivo (pensado para llamadas de Discord). No hace falta " +
+      "registrarse ni instalar nada.",
     stepsHeading: "La ronda, paso a paso",
     steps: [
       "El juego elige un campeón en secreto, entre todos los del juego.",
@@ -394,9 +461,8 @@ const es: Dict = {
       "también te delata.",
     feedbackHeading: "¿Se te ocurre algo?",
     feedback:
-      "Rift Impostor es código abierto y acá no hay ningún formulario, porque no hay servidor " +
-      "detrás de esta página. Las sugerencias y los errores van al repositorio en GitHub, donde " +
-      "además podés ver lo que ya pidió el resto.",
+      "Rift Impostor es código abierto. Las sugerencias y los errores van al repositorio en " +
+      "GitHub, donde además podés ver lo que ya pidió el resto.",
     feedbackCta: "Mandar una sugerencia",
     feedbackNote: "Abre GitHub en una pestaña nueva. Hace falta una cuenta gratuita para escribir.",
     sourceHeading: "¿De dónde salen los campeones?",
@@ -404,6 +470,68 @@ const es: Dict = {
       "Los datos y las imágenes vienen de Data Dragon, la CDN pública de Riot Games, así que la " +
       "lista se mantiene al día con cada campeón nuevo. Rift Impostor es un proyecto de fans, no " +
       "está avalado por Riot Games y Riot no se hace responsable por él.",
+  },
+  online: {
+    metaTitle: "Jugar online",
+    metaDescription:
+      "Creá una sala, compartí el link y jugá Rift Impostor cada uno desde su dispositivo. " +
+      "Pensado para llamadas de Discord: las pistas y la discusión siguen por voz.",
+    headline: "Jugar online",
+    lede: "Cada uno desde su dispositivo. Las pistas y la discusión, por la llamada.",
+    create: "Crear sala",
+    creating: "Creando…",
+    createFailed: "No se pudo crear la sala. Probá de nuevo en un rato.",
+    codeLabel: "Código de sala",
+    join: "Unirme",
+    badCode: "El código tiene 4 letras o números",
+    nameLabel: "Tu nombre",
+    nameLede: "Así te van a ver los demás.",
+    enter: "Entrar a la sala",
+    connecting: "Conectando con la sala…",
+    roomLabel: (code) => `Sala ${code}`,
+    roomCode: "Código de sala",
+    share: "Compartir el link",
+    copied: "Link copiado",
+    shareText: "Sumate a mi sala de Rift Impostor",
+    playersLabel: "Jugadores",
+    host: "anfitrión",
+    you: "vos",
+    online: "conectado",
+    offline: "desconectado",
+    kick: (name) => `Sacar a ${name}`,
+    start: "Empezar la partida",
+    needPlayers: (n) => `Hacen falta ${n} jugadores conectados`,
+    waitHost: "Esperando al anfitrión…",
+    leave: "Salir",
+    cancelRound: "Cancelar ronda",
+    yourCard: "Tu carta",
+    dealLede: "Fijate que nadie más esté mirando tu pantalla.",
+    ready: "Ya la vi",
+    readyCount: (k, n) => `${k} de ${n} listos`,
+    advanceDeal: "Pasar a las pistas",
+    waitingTitle: "Ya estás adentro",
+    waitingText: "Entraste con la ronda empezada. Jugás desde la siguiente.",
+    voteLede: "Discutan por la llamada y después votá acá. Podés cambiar el voto hasta que se cierre.",
+    voteTie: "Nadie, no estoy seguro",
+    voteConfirm: "Mandar mi voto",
+    voteSent: "tu voto ya está",
+    votedCount: (k, n) => `${k} de ${n} votaron`,
+    closeVote: "Cerrar la votación",
+    newGame: "Nueva partida",
+    reconnecting: "Reconectando…",
+    errors: {
+      room_not_found: "Esa sala no existe o ya venció.",
+      room_full: "La sala está llena. Entran 10 como máximo.",
+      bad_version: "Hay una versión nueva del juego.",
+      kicked: "El anfitrión te sacó de la sala.",
+      replaced: "Esta sala está abierta en otra pestaña.",
+      too_big: "Algo salió mal con la conexión.",
+      rate_limited: "Demasiados mensajes seguidos.",
+    },
+    createNew: "Crear una sala nueva",
+    reload: "Recargar",
+    joinAgain: "Volver a entrar",
+    leftPlayer: "Alguien que se fue",
   },
 };
 
