@@ -7,6 +7,7 @@ import { ONLINE_PATH, dict, otherLang, pathFor, type Dict, type Lang } from "@/l
 import { cleanName } from "@/lib/room/logic";
 import { isRoomCode, type ErrorCode, type Snapshot } from "@/lib/room/protocol";
 import { createRoom, forgetToken, readToken, useRoom } from "@/lib/room/useRoom";
+import { ResultShare } from "../ResultShare";
 import { Shell } from "../Shell";
 import { Clues } from "../screens/Clues";
 import { Reveal } from "../screens/Reveal";
@@ -206,13 +207,15 @@ export function OnlineGame({ lang }: { lang: Lang }) {
           />
         );
       }
-      case "end":
+      case "end": {
+        const finalists = players(s.seats.filter((x) => !x.gone).map((x) => x.id));
         return (
           <Scoreboard
             t={t}
-            players={players(s.seats.filter((x) => !x.gone).map((x) => x.id))}
+            players={finalists}
             stats={s.stats}
             roundsPlayed={s.roundsPlayed}
+            share={<ResultShare t={t} lang={lang} rows={rankPlayers(finalists, s.stats)} />}
             footer={
               isHost ? (
                 <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => send({ type: "newGame" })}>
@@ -224,6 +227,7 @@ export function OnlineGame({ lang }: { lang: Lang }) {
             }
           />
         );
+      }
     }
   };
 
