@@ -10,12 +10,13 @@ import {
   type PlayerStats,
   type Round,
 } from "@/lib/game";
-import { dict, otherLang, pathFor, type Lang } from "@/lib/i18n";
+import { dict, type Lang } from "@/lib/i18n";
 import { usePersistentState } from "@/lib/storage";
 import { Clues } from "./screens/Clues";
 import { Deal } from "./screens/Deal";
 import { Reveal } from "./screens/Reveal";
 import { Scoreboard } from "./screens/Scoreboard";
+import { Shell } from "./Shell";
 import { Setup } from "./screens/Setup";
 import { Vote } from "./screens/Vote";
 import styles from "./game.module.css";
@@ -73,18 +74,28 @@ const DEAL_START: DealStep = { index: 0, revealed: false };
 export function Game({ lang }: { lang: Lang }) {
   const t = dict(lang);
   const players = usePersistentState<Player[]>("rift.players", DEFAULT_PLAYERS);
-  const stats = usePersistentState<Record<string, PlayerStats>>("rift.stats", NO_STATS);
+  const stats = usePersistentState<Record<string, PlayerStats>>(
+    "rift.stats",
+    NO_STATS,
+  );
   const session = usePersistentState<Session>(SESSION_KEY, NEW_SESSION);
-  const settings = usePersistentState<Settings>("rift.settings", DEFAULT_SETTINGS);
+  const settings = usePersistentState<Settings>(
+    "rift.settings",
+    DEFAULT_SETTINGS,
+  );
   const [deal, setDeal] = useState<DealStep>(DEAL_START);
 
   const { phase, round, outcome, deltas } = session.value;
-  const patch = (p: Partial<Session>) => session.setValue((s) => ({ ...s, ...p }));
+  const patch = (p: Partial<Session>) =>
+    session.setValue((s) => ({ ...s, ...p }));
 
   /** Rondas terminadas. Sale de los puntajes en vez de un contador aparte:
    *  toda ronda puntuada le suma 1 a `roundsAsImpostor` de exactamente un
    *  jugador, asi que la suma ES la cantidad de rondas jugadas. */
-  const roundsPlayed = Object.values(stats.value).reduce((n, s) => n + s.roundsAsImpostor, 0);
+  const roundsPlayed = Object.values(stats.value).reduce(
+    (n, s) => n + s.roundsAsImpostor,
+    0,
+  );
   // En `reveal` la ronda ya se puntuo; en el resto todavia esta en curso.
   const roundNumber = phase === "reveal" ? roundsPlayed : roundsPlayed + 1;
 
@@ -150,153 +161,122 @@ export function Game({ lang }: { lang: Lang }) {
     : null;
 
   return (
-    <div className={styles.page} id="top">
-      {/* Adorno de escritorio, no navegacion: nada de lo que dice existe solo
-          aca, asi que no entra en el arbol de accesibilidad. */}
-      <aside className={styles.rail} aria-hidden="true">
-        <span className={`${styles.railMark} display`}>Rift Impostor</span>
-        <p className={styles.railLede}>{t.meta.tagline}</p>
-        <p className={`${styles.railMeta} mono`}>{t.meta.railMeta}</p>
-      </aside>
-
-      <div className={styles.app}>
-        {!dealing && (
-          <header className={styles.topbar}>
-            <span className={styles.wordmark}>
-              <span className={styles.wordmarkFull}>Rift Impostor</span>
-              <span className={styles.wordmarkShort}>Rift</span>
-            </span>
-            <nav className={styles.nav}>
-              {(phase === "reveal" || phase === "scores") && (
-                <button type="button" className={styles.navLink} onClick={openSetup}>
-                  {t.nav.play}
-                </button>
-              )}
-              {phase !== "scores" && phase !== "reveal" && (
-                <button type="button" className={styles.navLink} onClick={openScores}>
-                  {t.nav.table}
-                </button>
-              )}
-              <a className={styles.navLink} href="#rules">
-                {t.nav.rules}
-              </a>
-              {/* Ancla comun, NO next/link, y a proposito.
-                  Los dos idiomas viven en root layouts distintos ((en) y (es)),
-                  asi que Next hace navegacion dura entre ellos igual: el <Link>
-                  no ahorra nada y encima dispara un prefetch RSC que en
-                  `output: export` pide una ruta que no existe (404 en Vercel, y
-                  peor en nginx: 200 devolviendo el index). Un <a> es identico
-                  para SEO. */}
-              <a
-                className={`${styles.langBtn} mono`}
-                href={pathFor(otherLang(lang))}
-                hrefLang={otherLang(lang)}
-                aria-label={t.nav.switchTo}
-              >
-                {t.nav.switchShort}
-              </a>
-            </nav>
-          </header>
-        )}
-
-        {context && (
-          <div className={styles.context}>
-            <span className={styles.contextLabel}>{context}</span>
-            {progress !== null && (
-              <div className={styles.progress} aria-hidden="true">
-                <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* `main` envuelve cuerpo + dock porque los dos son la pantalla activa.
-            El dock es sticky adentro suyo, que llega hasta el piso: pegarse al
-            borde inferior sigue funcionando igual. */}
-        <main className={styles.main}>
-          {/* Hasta que localStorage no respondio no sabemos ni los nombres ni
-              en que fase quedo la partida. Pintar lo de fabrica y corregir es
-              un parpadeo, y en este juego un parpadeo puede mostrar una carta. */}
-          {!ready ? (
-            <div className={`${styles.body} ${styles.bodyCenter}`} aria-busy="true">
-              <p className={styles.note}>{t.loading}</p>
-            </div>
-          ) : (
-            <>
-              {phase === "setup" && (
-                <Setup
-                  t={t}
-                  players={players.value}
-                  roleHint={settings.value.roleHint}
-                  onChange={players.setValue}
-                  onRoleHintChange={(roleHint) => settings.setValue({ roleHint })}
-                  onStart={start}
-                />
-              )}
-
-              {phase === "deal" && round && dealPlayer && (
-                <Deal
-                  t={t}
-                  lang={lang}
-                  round={round}
-                  players={players.value}
-                  index={deal.index}
-                  revealed={deal.revealed}
-                  onView={() => setDeal((d) => ({ ...d, revealed: true }))}
-                  onNext={() => {
-                    if (deal.index === players.value.length - 1) patch({ phase: "clues" });
-                    else setDeal({ index: deal.index + 1, revealed: false });
-                  }}
-                />
-              )}
-
-              {phase === "clues" && round && (
-                <Clues
-                  t={t}
-                  round={round}
-                  players={players.value}
-                  onDone={() => patch({ phase: "vote" })}
-                />
-              )}
-
-              {phase === "vote" && <Vote t={t} players={players.value} onVote={vote} />}
-
-              {phase === "reveal" && round && outcome && (
-                <Reveal
-                  t={t}
-                  lang={lang}
-                  round={round}
-                  roundNumber={roundNumber}
-                  players={players.value}
-                  outcome={outcome}
-                  deltas={deltas}
-                  onNextRound={() => startRound(players.value)}
-                  onScores={openScores}
-                />
-              )}
-
-              {phase === "scores" && (
-                <Scoreboard
-                  t={t}
-                  players={players.value}
-                  stats={stats.value}
-                  roundsPlayed={roundsPlayed}
-                  onBack={() =>
-                    patch({
-                      phase:
-                        session.value.beforeScores === "scores"
-                          ? "setup"
-                          : session.value.beforeScores,
-                    })
-                  }
-                  onSetup={openSetup}
-                  onReset={stats.reset}
-                />
-              )}
-            </>
+    <Shell
+      t={t}
+      lang={lang}
+      hideTopbar={dealing}
+      context={context}
+      progress={progress}
+      nav={
+        <>
+          {(phase === "reveal" || phase === "scores") && (
+            <button
+              type="button"
+              className={styles.navLink}
+              onClick={openSetup}
+            >
+              {t.nav.play}
+            </button>
           )}
-        </main>
-      </div>
-    </div>
+          {phase !== "scores" && phase !== "reveal" && (
+            <button
+              type="button"
+              className={styles.navLink}
+              onClick={openScores}
+            >
+              {t.nav.table}
+            </button>
+          )}
+          <a className={styles.navLink} href="#rules">
+            {t.nav.rules}
+          </a>
+        </>
+      }
+    >
+      {/* Hasta que localStorage no respondio no sabemos ni los nombres ni en
+          que fase quedo la partida. Pintar lo de fabrica y corregir es un
+          parpadeo, y en este juego un parpadeo puede mostrar una carta. */}
+      {!ready ? (
+        <div className={`${styles.body} ${styles.bodyCenter}`} aria-busy="true">
+          <p className={styles.note}>{t.loading}</p>
+        </div>
+      ) : (
+        <>
+          {phase === "setup" && (
+            <Setup
+              t={t}
+              players={players.value}
+              roleHint={settings.value.roleHint}
+              onChange={players.setValue}
+              onRoleHintChange={(roleHint) => settings.setValue({ roleHint })}
+              onStart={start}
+            />
+          )}
+
+          {phase === "deal" && round && dealPlayer && (
+            <Deal
+              t={t}
+              lang={lang}
+              round={round}
+              players={players.value}
+              index={deal.index}
+              revealed={deal.revealed}
+              onView={() => setDeal((d) => ({ ...d, revealed: true }))}
+              onNext={() => {
+                if (deal.index === players.value.length - 1)
+                  patch({ phase: "clues" });
+                else setDeal({ index: deal.index + 1, revealed: false });
+              }}
+            />
+          )}
+
+          {phase === "clues" && round && (
+            <Clues
+              t={t}
+              round={round}
+              players={players.value}
+              onDone={() => patch({ phase: "vote" })}
+            />
+          )}
+
+          {phase === "vote" && (
+            <Vote t={t} players={players.value} onVote={vote} />
+          )}
+
+          {phase === "reveal" && round && outcome && (
+            <Reveal
+              t={t}
+              lang={lang}
+              round={round}
+              roundNumber={roundNumber}
+              players={players.value}
+              outcome={outcome}
+              deltas={deltas}
+              onNextRound={() => startRound(players.value)}
+              onScores={openScores}
+            />
+          )}
+
+          {phase === "scores" && (
+            <Scoreboard
+              t={t}
+              players={players.value}
+              stats={stats.value}
+              roundsPlayed={roundsPlayed}
+              onBack={() =>
+                patch({
+                  phase:
+                    session.value.beforeScores === "scores"
+                      ? "setup"
+                      : session.value.beforeScores,
+                })
+              }
+              onSetup={openSetup}
+              onReset={stats.reset}
+            />
+          )}
+        </>
+      )}
+    </Shell>
   );
 }
