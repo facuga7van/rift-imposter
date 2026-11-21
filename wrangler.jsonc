@@ -19,5 +19,7 @@
     "bindings": [{ "name": "ROOM", "class_name": "Room" }]
   },
   // SQLite es el unico backend de Durable Objects en el plan Free.
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }]
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
+  // Workers Logs: gratis hasta 200k eventos/dia en Free (despues se descartan, no se cobran).
+  "observability": { "enabled": true }
 }

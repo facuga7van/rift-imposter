@@ -65,9 +65,10 @@ export class Room extends DurableObject<Env> {
 
   /** Siempre acepta el upgrade: el navegador no puede leer el status de un
    *  upgrade fallido, asi que los errores viajan como mensaje + cierre 4xxx. */
-  async fetch(): Promise<Response> {
+  async fetch(request: Request): Promise<Response> {
     const { 0: client, 1: server } = new WebSocketPair();
-    this.ctx.acceptWebSocket(server);
+    // El tag es el codigo pedido (/api/sala/:code/ws): sin estado, el objeto no sabe cual es.
+    this.ctx.acceptWebSocket(server, [new URL(request.url).pathname.split("/")[3] ?? "?"]);
     return new Response(null, { status: 101, webSocket: client });
   }
 
@@ -247,6 +248,7 @@ export class Room extends DurableObject<Env> {
   }
 
   private fail(ws: WebSocket, code: ErrorCode): void {
+    console.warn(JSON.stringify({ event: "room_fail", error: code, room: this.ctx.getTags(ws)[0] }));
     this.send(ws, { type: "error", code });
     try {
       ws.close(CLOSE_CODES[code], code);
