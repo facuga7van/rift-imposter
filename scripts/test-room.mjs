@@ -152,6 +152,69 @@ check(
 );
 check("parseHello ignora lo que no es hello", parseHello({ type: "start" }) === null);
 
+// ---- lobby y ronda ------------------------------------------------------
+section("Lobby y ronda");
+{
+  const t = table(["Ana", "Beto"]);
+  let before = t.state;
+  t.send(t.ids[0], { type: "start" });
+  check("con 2 conectados no arranca", t.state === before);
+  t.hello("tok2", "Cami");
+  before = t.state;
+  t.send(t.ids[1], { type: "start" });
+  check("un no-anfitrion no puede arrancar", t.state === before);
+  t.send(t.ids[1], { type: "settings", roleHint: false });
+  check("un no-anfitrion no toca los ajustes", t.state.settings.roleHint === true);
+  t.send(t.ids[0], { type: "settings", roleHint: false });
+  check("el anfitrion apaga la pista en lobby", t.state.settings.roleHint === false);
+  t.send(t.ids[0], { type: "start" });
+  check("start pasa a deal", t.state.phase === "deal");
+  check("participan los 3 conectados", t.state.participants.length === 3);
+  check("la ronda respeta el ajuste", t.state.round.roleHint === false);
+  t.send(t.ids[0], { type: "settings", roleHint: true });
+  check("fuera del lobby los ajustes no cambian", t.state.settings.roleHint === false);
+  t.send(t.ids[1], { type: "ready" });
+  before = t.state;
+  t.send(t.ids[1], { type: "ready" });
+  check("ready duplicado no cambia nada (misma referencia)", t.state === before);
+  check("ready registrado", t.state.ready.join() === t.ids[1]);
+  t.send(t.ids[1], { type: "advance" });
+  check("advance de un no-anfitrion se descarta", t.state.phase === "deal");
+  t.send(t.ids[0], { type: "advance" });
+  check("deal -> clues", t.state.phase === "clues");
+  before = t.state;
+  t.send(t.ids[1], { type: "ready" });
+  check("ready fuera de deal se descarta", t.state === before);
+  t.send(t.ids[0], { type: "advance" });
+  check("clues -> vote", t.state.phase === "vote");
+  before = t.state;
+  t.send(t.ids[0], { type: "advance" });
+  check("advance en vote se descarta", t.state === before);
+  t.send(t.ids[0], { type: "cancelRound" });
+  check(
+    "cancelRound vuelve al lobby y limpia la ronda",
+    t.state.phase === "lobby" && t.state.round === null && t.state.participants.length === 0,
+  );
+  before = t.state;
+  t.send(t.ids[0], { type: "nextRound" });
+  check("nextRound en lobby se descarta", t.state === before);
+}
+check(
+  "toEvent rechaza basura",
+  toEvent(null, "x") === null &&
+    toEvent({ type: "nope" }, "x") === null &&
+    toEvent({ type: "vote", target: 3 }, "x") === null &&
+    toEvent({ type: "settings", roleHint: "si" }, "x") === null &&
+    toEvent({ type: "kick" }, "x") === null,
+);
+check("toEvent pega el emisor", toEvent({ type: "kick", id: "s2" }, "s1")?.from === "s1");
+{
+  const t = table();
+  const before = t.state;
+  t.send("fantasma", { type: "start" });
+  check("un emisor sin asiento se descarta", t.state === before);
+}
+
 // ---- resumen ---------------------------------------------------------------
 console.log(`\n${"=".repeat(52)}`);
 console.log(`${ok} checks OK, ${fails.length} fallaron`);

@@ -226,6 +226,33 @@ function hello(s: RoomState, e: { tokenHash: string; name: string }, ctx: RoomCt
   return { ...s, seats: [...s.seats, created] };
 }
 
+function clearRound(s: RoomState): RoomState {
+  return { ...s, round: null, participants: [], ready: [], votes: {}, outcome: null, deltas: {}, tally: null };
+}
+
+/** Saca los asientos retirados y sus puntajes. */
+function dropGone(s: RoomState): RoomState {
+  const seats = s.seats.filter((x) => !x.gone);
+  const ids = new Set(seats.map((x) => x.id));
+  return { ...s, seats, stats: Object.fromEntries(Object.entries(s.stats).filter(([id]) => ids.has(id))) };
+}
+
+/** En lobby no hay asientos retirados: un `gone` solo tiene sentido con una ronda en curso. */
+function toLobby(s: RoomState): RoomState {
+  return { ...clearRound(dropGone(s)), phase: "lobby" };
+}
+
+/** Participantes = asientos conectados y no retirados al arrancar. */
+function startRound(s: RoomState, connected: readonly string[]): RoomState {
+  const players = toPlayers(connectedSeats(s, connected));
+  return {
+    ...clearRound(s),
+    phase: "deal",
+    round: createRound(players, s.settings.roleHint),
+    participants: players.map((p) => p.id),
+  };
+}
+
 function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError {
   if (e.type === "sync") return s;
   if (e.type === "hello") return hello(s, e, ctx);
@@ -237,7 +264,21 @@ function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError 
   const playing = active.includes(me.id);
 
   switch (e.type) {
-    // [T7] lobby y ronda
+    case "settings":
+      return isHost && s.phase === "lobby" ? { ...s, settings: { roleHint: e.roleHint } } : s;
+    case "start":
+      return isHost && s.phase === "lobby" && connectedSeats(s, ctx.connected).length >= MIN_PLAYERS
+        ? startRound(s, ctx.connected)
+        : s;
+    case "ready":
+      return s.phase === "deal" && playing && !s.ready.includes(me.id) ? { ...s, ready: [...s.ready, me.id] } : s;
+    case "advance":
+      if (!isHost) return s;
+      if (s.phase === "deal") return { ...s, phase: "clues" };
+      if (s.phase === "clues") return { ...s, phase: "vote" };
+      return s;
+    case "cancelRound":
+      return isHost && midRound(s.phase) ? toLobby(s) : s;
     // [T8] votacion
     // [T9] despues del reveal
     // [T10] salidas y expulsiones
