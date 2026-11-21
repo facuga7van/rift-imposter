@@ -537,6 +537,91 @@ section("Anfitrion");
   check("leave del anfitrion a mitad de ronda tambien traspasa", host(t) === b);
 }
 
+// ---- alarm --------------------------------------------------------------
+section("nextAlarmAt");
+{
+  const t = table();
+  check("sin gracia, la alarma es la expiracion", nextAlarmAt(t.state) === t.state.lastActivity + ROOM_TTL_MS);
+  t.drop(t.ids[0]);
+  check("con gracia, la alarma es la gracia", nextAlarmAt(t.state) === t.state.hostGraceUntil);
+}
+
+// ---- snapshot -----------------------------------------------------------
+section("Privacidad del snapshot (obligatorio)");
+for (const roleHint of [true, false]) {
+  for (const phase of ["deal", "clues", "vote"]) {
+    const t = table(["Ana", "Beto", "Cami", "Dani"]);
+    t.send(host(t), { type: "settings", roleHint });
+    t.send(host(t), { type: "start" });
+    if (phase !== "deal") t.send(host(t), { type: "advance" });
+    if (phase === "vote") {
+      t.send(host(t), { type: "advance" });
+      t.send(crewOf(t)[0], { type: "vote", target: impostorOf(t) });
+    }
+    const round = t.state.round;
+    const leaks = [];
+    for (const seat of t.state.seats) {
+      const json = JSON.stringify(snapshotFor(t.state, seat.id, t.connected));
+      if (seat.id === round.impostorPlayerId && json.includes(`"${round.secret.id}"`)) leaks.push("campeon al impostor");
+      if (json.includes("impostorPlayerId") || json.includes('"impostorId"')) leaks.push(`impostor en ${seat.name}`);
+      if (json.includes("tokenHash") || t.state.seats.some((s) => json.includes(`"${s.tokenHash}"`))) {
+        leaks.push(`token en ${seat.name}`);
+      }
+      if (json.includes('"votes"')) leaks.push(`votos en ${seat.name}`);
+    }
+    check(`${phase}, pista ${roleHint ? "prendida" : "apagada"}: ningun snapshot filtra nada`, leaks.length === 0, leaks.join(", "));
+  }
+}
+
+section("Contenido del snapshot");
+{
+  const t = table();
+  t.send(host(t), { type: "start" });
+  const r = t.state.round;
+  const imp = r.impostorPlayerId;
+  const crew = crewOf(t)[0];
+  const sc = snapshotFor(t.state, crew, t.connected);
+  const si = snapshotFor(t.state, imp, t.connected);
+  check("el inocente recibe el campeon", sc.you.role.kind === "crew" && sc.you.role.championId === r.secret.id);
+  check(
+    "el impostor recibe la clase con la pista prendida",
+    si.you.role.kind === "impostor" && si.you.role.roleHint === r.role,
+  );
+  check("antes del reveal no hay resultado", sc.reveal === null);
+  check("isHost marca al anfitrion", snapshotFor(t.state, host(t), t.connected).you.isHost === true);
+  check("clueOrder trae a los 3 participantes", sc.clueOrder.length === 3);
+  const late = t.hello("tokL", "Lola");
+  check("el que entro tarde recibe 'waiting'", snapshotFor(t.state, late.id, t.connected).you.role.kind === "waiting");
+  t.drop(crew);
+  check(
+    "connected se deriva de los sockets",
+    snapshotFor(t.state, imp, t.connected).seats.find((s) => s.id === crew).connected === false,
+  );
+  check("un asiento inexistente no recibe snapshot", snapshotFor(t.state, "fantasma", t.connected) === null);
+}
+{
+  const t = table();
+  t.send(host(t), { type: "settings", roleHint: false });
+  t.send(host(t), { type: "start" });
+  const si = snapshotFor(t.state, impostorOf(t), t.connected);
+  check("con la pista apagada el impostor no recibe la clase", si.you.role.roleHint === null);
+}
+{
+  const t = table();
+  catchImpostor(t);
+  const s = snapshotFor(t.state, t.ids[0], t.connected);
+  check(
+    "en reveal todos ven campeon, impostor, resultado y tally",
+    s.reveal !== null &&
+      s.reveal.impostorId === impostorOf(t) &&
+      s.reveal.championId === t.state.round.secret.id &&
+      s.reveal.outcome.kind === "caught" &&
+      s.reveal.tally[impostorOf(t)] === 2,
+  );
+  check("en reveal el numero de ronda es el de la ronda jugada", s.roundNumber === 1);
+  check("voted lista ids, no destinos", s.voted.length === 3 && s.voted.every((id) => t.ids.includes(id)));
+}
+
 // ---- resumen ---------------------------------------------------------------
 console.log(`\n${"=".repeat(52)}`);
 console.log(`${ok} checks OK, ${fails.length} fallaron`);

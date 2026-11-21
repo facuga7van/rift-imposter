@@ -398,3 +398,69 @@ export function reduce(state: RoomState, event: RoomEvent, ctx: RoomCtx): RoomSt
   if (JSON.stringify(next) === JSON.stringify(state)) return state;
   return { ...next, lastActivity: ctx.now };
 }
+
+// ------------------------------------------------------------------- alarm
+
+/** Una sola alarm por objeto: lo que venza primero entre la gracia y la expiracion. */
+export function nextAlarmAt(s: RoomState): number {
+  return Math.min(s.hostGraceUntil ?? Infinity, s.lastActivity + ROOM_TTL_MS);
+}
+
+export function isExpired(s: RoomState, now: number): boolean {
+  return now >= s.lastActivity + ROOM_TTL_MS;
+}
+
+// ---------------------------------------------------------------- snapshot
+
+/**
+ * Estado filtrado para un jugador. Se arma por LISTA BLANCA, campo por campo:
+ * nunca se clona RoomState para borrarle cosas, porque un campo nuevo en el
+ * estado se filtraria solo. `round` no sale nunca; el impostor no sale hasta
+ * el reveal; tokenHash no sale jamas.
+ */
+export function snapshotFor(s: RoomState, seatId: string, connected: readonly string[]): Snapshot | null {
+  const me = s.seats.find((x) => x.id === seatId);
+  if (!me || me.gone) return null;
+
+  const r = s.round;
+  let role: YourRole | null = null;
+  if (r && (midRound(s.phase) || s.phase === "reveal")) {
+    if (!s.participants.includes(me.id)) role = { kind: "waiting" };
+    else if (r.impostorPlayerId === me.id) role = { kind: "impostor", roleHint: r.roleHint ? r.role : null };
+    else role = { kind: "crew", championId: r.secret.id };
+  }
+
+  const revealed = r !== null && s.outcome !== null && (s.phase === "reveal" || s.phase === "end");
+
+  return {
+    type: "snapshot",
+    code: s.code,
+    phase: s.phase,
+    hostId: s.hostId,
+    seats: s.seats.map((x) => ({ id: x.id, name: x.name, connected: connected.includes(x.id), gone: x.gone })),
+    settings: { roleHint: s.settings.roleHint },
+    stats: Object.fromEntries(
+      Object.entries(s.stats).map(([id, st]) => [
+        id,
+        { points: st.points, roundsAsImpostor: st.roundsAsImpostor, impostorWins: st.impostorWins },
+      ]),
+    ),
+    roundsPlayed: s.roundsPlayed,
+    // En reveal y end la ronda ya se puntuo; en el resto todavia esta en curso.
+    roundNumber: s.phase === "reveal" || s.phase === "end" ? s.roundsPlayed : s.roundsPlayed + 1,
+    clueOrder: r && s.phase !== "lobby" ? [...r.clueOrder] : [],
+    ready: [...s.ready],
+    voted: Object.keys(s.votes),
+    you: { id: me.id, isHost: s.hostId === me.id, role },
+    reveal:
+      revealed && r && s.outcome
+        ? {
+            championId: r.secret.id,
+            impostorId: r.impostorPlayerId,
+            outcome: s.outcome,
+            deltas: s.deltas,
+            tally: s.tally ?? {},
+          }
+        : null,
+  };
+}
