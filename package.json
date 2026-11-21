@@ -19,7 +19,6 @@
     "cf-typegen": "wrangler types worker/worker-configuration.d.ts"
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
     "next": "^16.3.4",
     "react": "19.1.1",
     "react-dom": "19.1.1"
