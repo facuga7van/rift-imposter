@@ -293,6 +293,26 @@ function nextRound(s: RoomState, connected: readonly string[]): RoomState {
   return startRound(clean, connected);
 }
 
+/** Borra (en lobby) o retira (con ronda) un asiento. */
+function removeSeat(s: RoomState, id: string): RoomState {
+  if (!isLive(s, id)) return s;
+  if (s.phase === "lobby") return dropGone({ ...s, seats: s.seats.map((x) => (x.id === id ? { ...x, gone: true } : x)) });
+
+  const next: RoomState = {
+    ...s,
+    // hello solo busca asientos no retirados: si vuelve con el mismo token, entra como nuevo.
+    seats: s.seats.map((x) => (x.id === id ? { ...x, gone: true } : x)),
+    ready: s.ready.filter((r) => r !== id),
+    votes: Object.fromEntries(
+      Object.entries(s.votes).filter(([voter, target]) => voter !== id && target !== id),
+    ),
+  };
+  if (midRound(s.phase) && (s.round?.impostorPlayerId === id || activeParticipants(next).length < MIN_PLAYERS)) {
+    return toLobby(next);
+  }
+  return next;
+}
+
 function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError {
   if (e.type === "sync") return s;
   if (e.type === "hello") return hello(s, e, ctx);
@@ -337,7 +357,11 @@ function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError 
       return isHost && s.phase === "reveal" ? nextRound(s, ctx.connected) : s;
     case "newGame":
       return isHost && s.phase === "end" ? { ...toLobby(s), stats: {}, roundsPlayed: 0 } : s;
-    // [T10] salidas y expulsiones
+    case "kick":
+      return isHost && e.id !== me.id ? removeSeat(s, e.id) : s;
+    case "leave":
+      // Si el que se va es el anfitrion, normalizeHost traspasa el rol sin gracia.
+      return removeSeat(s, me.id);
     default:
       return s;
   }

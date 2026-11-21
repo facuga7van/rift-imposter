@@ -367,6 +367,127 @@ section("Despues del reveal");
   );
 }
 
+// ---- entrar tarde -------------------------------------------------------
+section("Entrar tarde");
+{
+  const t = table();
+  t.send(host(t), { type: "start" });
+  const late = t.hello("tokL", "Lola");
+  check("el que entra a mitad de ronda tiene asiento", !!late && t.state.seats.length === 4);
+  check("pero no participa de la ronda en curso", !t.state.participants.includes(late.id));
+  t.hello("tokL", "Otro nombre");
+  check("fuera del lobby el hello no renombra", t.state.seats.find((s) => s.id === late.id).name === "Lola");
+  t.send(host(t), { type: "advance" });
+  t.send(host(t), { type: "advance" });
+  const before = t.state;
+  t.send(late.id, { type: "vote", target: t.ids[0] });
+  check("no puede votar", t.state === before);
+  const imp = impostorOf(t);
+  for (const id of t.state.participants) t.send(id, { type: "vote", target: id === imp ? crewOf(t)[0] : imp });
+  check("no suma en la ronda que no jugo", t.state.stats[late.id] === undefined);
+  t.send(host(t), { type: "nextRound" });
+  check("juega desde la ronda siguiente", t.state.participants.includes(late.id));
+  check("con 0 puntos", (t.state.stats[late.id]?.points ?? 0) === 0);
+}
+
+// ---- salidas y expulsiones ------------------------------------------------
+section("Salidas y expulsiones");
+{
+  const t = table(["Ana", "Beto", "Cami", "Dani"]);
+  const [a, b, c, d] = t.ids;
+  t.send(b, { type: "kick", id: c });
+  check("un no-anfitrion no expulsa", t.state.seats.length === 4);
+  t.send(a, { type: "kick", id: a });
+  check("el anfitrion no se expulsa a si mismo", t.state.seats.length === 4);
+  t.send(a, { type: "kick", id: d });
+  check("en lobby kick borra el asiento", t.state.seats.length === 3 && !t.state.seats.some((s) => s.id === d));
+  t.send(c, { type: "leave" });
+  check("en lobby leave borra el asiento", t.state.seats.length === 2);
+}
+{
+  const t = table(["Ana", "Beto", "Cami", "Dani"]);
+  toVote(t);
+  const h = host(t);
+  const imp = impostorOf(t);
+  const victim = crewOf(t).find((id) => id !== h);
+  const other = t.state.participants.find((id) => id !== victim && id !== h);
+  t.send(victim, { type: "vote", target: imp });
+  t.send(other, { type: "vote", target: victim });
+  t.send(h, { type: "kick", id: victim });
+  const seat = t.state.seats.find((s) => s.id === victim);
+  check("a mitad de ronda kick deja el asiento retirado", seat?.gone === true);
+  check("se borra su voto", !(victim in t.state.votes));
+  check("y los votos en su contra", !(other in t.state.votes));
+  check("con 3 participantes activos la ronda sigue", t.state.phase === "vote");
+  const back = t.hello(`tok${t.ids.indexOf(victim)}`, "Vuelvo");
+  check(
+    "el expulsado puede volver a entrar como nuevo",
+    back.id !== victim && !t.state.participants.includes(back.id),
+  );
+}
+{
+  const t = table(["Ana", "Beto", "Cami", "Dani"]);
+  t.send(host(t), { type: "start" });
+  t.send(impostorOf(t), { type: "leave" });
+  check("si se va el impostor la ronda se cancela", t.state.phase === "lobby");
+  check("y el retirado se borra al volver al lobby", t.state.seats.length === 3);
+}
+{
+  const t = table();
+  t.send(host(t), { type: "start" });
+  t.send(crewOf(t).find((id) => id !== host(t)), { type: "leave" });
+  check("con menos de 3 participantes la ronda se cancela", t.state.phase === "lobby");
+}
+{
+  const t = table();
+  catchImpostor(t);
+  const x = t.ids.find((id) => id !== host(t));
+  t.send(x, { type: "leave" });
+  check(
+    "en reveal el que se va queda retirado",
+    t.state.seats.find((s) => s.id === x).gone === true && t.state.phase === "reveal",
+  );
+  t.hello("tokN", "Nico");
+  t.send(host(t), { type: "nextRound" });
+  check("los retirados se borran al salir del reveal", !t.state.seats.some((s) => s.id === x));
+}
+for (const phase of ["deal", "clues", "vote"]) {
+  for (const type of ["kick", "leave"]) {
+    const t = table(["Ana", "Beto", "Cami", "Dani"]);
+    const h = host(t);
+    t.send(h, { type: "start" });
+    if (phase !== "deal") t.send(h, { type: "advance" });
+    if (phase === "vote") t.send(h, { type: "advance" });
+    const imp = impostorOf(t);
+    if (type === "kick" && imp !== h) t.send(h, { type: "kick", id: imp });
+    else t.send(imp, { type: "leave" });
+    check(
+      `${type} del impostor en ${phase} cancela la ronda`,
+      t.state.phase === "lobby" && t.state.round === null && !t.state.seats.some((s) => s.id === imp),
+    );
+  }
+}
+{
+  const t = table(["Ana", "Beto", "Cami", "Dani"]);
+  t.drop(t.ids[3]);
+  t.send(host(t), { type: "start" });
+  check(
+    "un desconectado no participa de la ronda",
+    t.state.participants.length === 3 && !t.state.participants.includes(t.ids[3]),
+  );
+}
+{
+  const t = table();
+  toVote(t);
+  const [a, b, c] = t.ids;
+  t.send(a, { type: "vote", target: b });
+  t.send(b, { type: "vote", target: a });
+  t.drop(c);
+  check("una desconexion no cierra la votacion", t.state.phase === "vote");
+  t.send(host(t), { type: "closeVote" });
+  check("el anfitrion la cierra con 2 de 3", t.state.phase === "reveal");
+}
+
 // ---- resumen ---------------------------------------------------------------
 console.log(`\n${"=".repeat(52)}`);
 console.log(`${ok} checks OK, ${fails.length} fallaron`);
