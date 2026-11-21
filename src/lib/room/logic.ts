@@ -253,6 +253,38 @@ function startRound(s: RoomState, connected: readonly string[]): RoomState {
   };
 }
 
+/** Cierra la votacion: acusa al mas votado y puntua. Siempre pasa a reveal. */
+function closeVote(s: RoomState): RoomState {
+  const round = s.round;
+  if (!round) return s;
+
+  const tally: Record<string, number> = {};
+  let nobody = 0;
+  for (const target of Object.values(s.votes)) {
+    if (target === null) nobody++;
+    else tally[target] = (tally[target] ?? 0) + 1;
+  }
+  const top = Math.max(nobody, ...Object.values(tally));
+  const leaders = Object.keys(tally).filter((id) => tally[id] === top);
+  // Empate en el primer puesto, o "nadie" arriba (solo o empatado): el impostor zafa.
+  const accused = leaders.length === 1 && nobody < top ? leaders[0]! : null;
+
+  const outcome: Outcome =
+    accused === round.impostorPlayerId ? { kind: "caught" } : { kind: "escaped", accusedPlayerId: accused };
+  const active = activeParticipants(s);
+  const deltas = scoreRound(round, toPlayers(s.seats.filter((x) => active.includes(x.id))), outcome);
+
+  return {
+    ...s,
+    phase: "reveal",
+    outcome,
+    deltas,
+    tally,
+    stats: applyDeltas(s.stats, deltas),
+    roundsPlayed: s.roundsPlayed + 1,
+  };
+}
+
 function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError {
   if (e.type === "sync") return s;
   if (e.type === "hello") return hello(s, e, ctx);
@@ -279,7 +311,20 @@ function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError 
       return s;
     case "cancelRound":
       return isHost && midRound(s.phase) ? toLobby(s) : s;
-    // [T8] votacion
+    case "vote": {
+      if (s.phase !== "vote" || !playing) return s;
+      if (e.target !== null && (e.target === me.id || !active.includes(e.target))) return s;
+      const next = { ...s, votes: { ...s.votes, [me.id]: e.target } };
+      // Cierra sola cuando votaron todos los participantes no retirados, esten
+      // conectados o no. Solo aca: una desconexion nunca cierra la votacion.
+      return active.every((id) => id in next.votes) ? closeVote(next) : next;
+    }
+    case "closeVote": {
+      if (!isHost || s.phase !== "vote") return s;
+      const voted = active.filter((id) => id in s.votes).length;
+      // Mas de la mitad: asi un anfitrion impostor no puede cerrar con 0 votos.
+      return voted * 2 > active.length ? closeVote(s) : s;
+    }
     // [T9] despues del reveal
     // [T10] salidas y expulsiones
     default:

@@ -215,6 +215,112 @@ check("toEvent pega el emisor", toEvent({ type: "kick", id: "s2" }, "s1")?.from 
   check("un emisor sin asiento se descarta", t.state === before);
 }
 
+// ---- votacion -----------------------------------------------------------
+section("Votacion");
+{
+  const t = table();
+  toVote(t);
+  const imp = impostorOf(t);
+  const [c1, c2] = crewOf(t);
+  let before = t.state;
+  t.send(c1, { type: "vote", target: c1 });
+  check("no se puede votar a uno mismo", t.state === before);
+  t.send(c1, { type: "vote", target: "fantasma" });
+  check("no se puede votar a un no participante", t.state === before);
+  t.send(c1, { type: "vote", target: c2 });
+  t.send(c1, { type: "vote", target: imp });
+  check("el voto se puede cambiar", t.state.votes[c1] === imp);
+  t.send(c2, { type: "vote", target: imp });
+  check("con 2 de 3 todavia no cierra", t.state.phase === "vote");
+  t.send(imp, { type: "vote", target: c1 });
+  check("cierra sola cuando votaron todos", t.state.phase === "reveal");
+  check("lo agarraron", t.state.outcome.kind === "caught");
+  check("cada inocente suma 1", t.state.stats[c1].points === 1 && t.state.stats[c2].points === 1);
+  check(
+    "el impostor no suma pero cuenta la ronda",
+    t.state.stats[imp].points === 0 && t.state.stats[imp].roundsAsImpostor === 1,
+  );
+  check("tally cuenta los votos", t.state.tally[imp] === 2 && t.state.tally[c1] === 1);
+  check("roundsPlayed sube", t.state.roundsPlayed === 1);
+  before = t.state;
+  t.send(c1, { type: "vote", target: c2 });
+  check("despues del cierre no se vota", t.state === before);
+}
+{
+  const t = table();
+  toVote(t);
+  const imp = impostorOf(t);
+  const [c1, c2] = crewOf(t);
+  t.send(imp, { type: "vote", target: c1 });
+  t.send(c2, { type: "vote", target: c1 });
+  t.send(c1, { type: "vote", target: imp });
+  check(
+    "acusan a un inocente: zafa con acusado",
+    t.state.outcome.kind === "escaped" && t.state.outcome.accusedPlayerId === c1,
+  );
+  check("el impostor se lleva 3", t.state.stats[imp].points === 3);
+}
+{
+  const t = table(["Ana", "Beto", "Cami", "Dani"]);
+  toVote(t);
+  const [a, b, c, d] = t.ids;
+  t.send(a, { type: "vote", target: b });
+  t.send(b, { type: "vote", target: a });
+  t.send(c, { type: "vote", target: a });
+  t.send(d, { type: "vote", target: b });
+  check(
+    "empate en el primer puesto: zafa sin acusado",
+    t.state.outcome.kind === "escaped" && t.state.outcome.accusedPlayerId === null,
+  );
+}
+{
+  const t = table();
+  toVote(t);
+  for (const id of t.ids) t.send(id, { type: "vote", target: null });
+  check(
+    "gana 'nadie': zafa sin acusado",
+    t.state.outcome.kind === "escaped" && t.state.outcome.accusedPlayerId === null,
+  );
+}
+{
+  const t = table(["Ana", "Beto", "Cami", "Dani"]);
+  toVote(t);
+  const [a, b, c, d] = t.ids;
+  t.send(a, { type: "vote", target: null });
+  t.send(b, { type: "vote", target: null });
+  t.send(c, { type: "vote", target: a });
+  t.send(d, { type: "vote", target: a });
+  check("empate entre 'nadie' y alguien: zafa sin acusado", t.state.outcome.accusedPlayerId === null);
+}
+{
+  const t = table(["Ana", "Beto", "Cami", "Dani"]);
+  toVote(t);
+  const h = host(t);
+  const others = t.ids.filter((id) => id !== h);
+  t.send(others[0], { type: "vote", target: h });
+  let before = t.state;
+  t.send(h, { type: "closeVote" });
+  check("closeVote con 1 de 4 no cierra", t.state === before);
+  t.send(others[1], { type: "vote", target: h });
+  before = t.state;
+  t.send(h, { type: "closeVote" });
+  check("closeVote con 2 de 4 (la mitad justa) no cierra", t.state === before);
+  t.send(others[2], { type: "vote", target: h });
+  before = t.state;
+  t.send(others[0], { type: "closeVote" });
+  check("closeVote de un no-anfitrion se descarta", t.state === before);
+  t.send(h, { type: "closeVote" });
+  check("closeVote con 3 de 4 cierra", t.state.phase === "reveal");
+  check("el voto que falto no cuenta", Object.keys(t.state.votes).length === 3);
+}
+{
+  const t = table();
+  toVote(t);
+  const before = t.state;
+  t.send(host(t), { type: "closeVote" });
+  check("un anfitrion (impostor o no) no cierra con 0 votos", t.state === before);
+}
+
 // ---- resumen ---------------------------------------------------------------
 console.log(`\n${"=".repeat(52)}`);
 console.log(`${ok} checks OK, ${fails.length} fallaron`);
