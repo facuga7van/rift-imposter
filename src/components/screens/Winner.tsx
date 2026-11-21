@@ -58,13 +58,16 @@ export function Winner({ t, lang, players, stats, onNewGame, onTable }: Props) {
             </span>
           </div>
         )}
+
+        <div className={styles.stack}>
+          <ResultShare t={t} lang={lang} rows={rows} />
+        </div>
       </div>
 
       <div className={styles.dock}>
         <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={onNewGame}>
           {t.winner.newGame}
         </button>
-        <ResultShare t={t} lang={lang} rows={rows} />
         <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={onTable}>
           {t.reveal.table}
         </button>
