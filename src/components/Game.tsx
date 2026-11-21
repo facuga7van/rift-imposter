@@ -10,7 +10,7 @@ import {
   type PlayerStats,
   type Round,
 } from "@/lib/game";
-import { dict, type Lang } from "@/lib/i18n";
+import { ONLINE_PATH, dict, type Lang } from "@/lib/i18n";
 import { usePersistentState } from "@/lib/storage";
 import { Clues } from "./screens/Clues";
 import { Deal } from "./screens/Deal";
@@ -210,6 +210,7 @@ export function Game({ lang }: { lang: Lang }) {
               onChange={players.setValue}
               onRoleHintChange={(roleHint) => settings.setValue({ roleHint })}
               onStart={start}
+              onlineHref={ONLINE_PATH[lang]}
             />
           )}
 

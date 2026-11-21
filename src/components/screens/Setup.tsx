@@ -13,9 +13,10 @@ type Props = {
   onChange: (players: Player[]) => void;
   onRoleHintChange: (value: boolean) => void;
   onStart: () => void;
+  onlineHref: string;
 };
 
-export function Setup({ t, players, roleHint, onChange, onRoleHintChange, onStart }: Props) {
+export function Setup({ t, players, roleHint, onChange, onRoleHintChange, onStart, onlineHref }: Props) {
   const rename = (id: string, name: string) =>
     onChange(players.map((p) => (p.id === id ? { ...p, name } : p)));
 
@@ -115,6 +116,10 @@ export function Setup({ t, players, roleHint, onChange, onRoleHintChange, onStar
           {t.setup.start}
           <span className={styles.shine} aria-hidden="true" />
         </button>
+        {/* Ancla comun, no next/link: misma razon que el cambio de idioma (sin prefetch RSC en el export). */}
+        <a className={`${styles.btn} ${styles.btnGhost}`} href={onlineHref}>
+          {t.setup.playOnline}
+        </a>
       </div>
     </>
   );
