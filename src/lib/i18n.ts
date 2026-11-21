@@ -278,6 +278,15 @@ const en = {
     metaDescription:
       "Create a room, share the link and play Rift Impostor with everyone on their own " +
       "device. Made for Discord calls: clues and arguing stay on voice.",
+    guideHeading: "How to play online with friends (Discord)",
+    guideSteps: [
+      "Create a room with the button above. You become the host.",
+      "Share the room link or its 4-character code in your Discord call or group chat.",
+      "Everyone opens the link and joins from their own phone or computer, no matter where they are.",
+      "Give the clues out loud on the voice call, one word each. The app shows everyone their card and the order.",
+      "When the clues are done, argue it out on the call and vote in the app. The host closes the vote and the champion is revealed.",
+    ],
+    guideFree: "It's free, with no sign-up and nothing to install.",
     headline: "Play online",
     lede: "Everyone on their own device. Clues and arguing stay on the call.",
     create: "Create a room",
@@ -559,6 +568,15 @@ const es: Dict = {
     metaDescription:
       "Creá una sala, compartí el link y jugá Rift Impostor cada uno desde su dispositivo. " +
       "Pensado para llamadas de Discord: las pistas y la discusión siguen por voz.",
+    guideHeading: "Cómo jugar online con amigos (Discord)",
+    guideSteps: [
+      "Creá una sala con el botón de arriba. Vos sos el anfitrión.",
+      "Compartí el link de la sala o su código de 4 caracteres en la llamada de Discord o en el grupo.",
+      "Cada uno abre el link y entra desde su celular o su compu, esté donde esté.",
+      "Las pistas se dicen en voz alta por la llamada, una palabra cada uno. La app le muestra a cada uno su carta y el orden.",
+      "Cuando terminan las pistas, discutan por la llamada y voten en la app. El anfitrión cierra la votación y se revela el campeón.",
+    ],
+    guideFree: "Es gratis, sin registro y sin instalar nada.",
     headline: "Jugar online",
     lede: "Cada uno desde su dispositivo. Las pistas y la discusión, por la llamada.",
     create: "Crear sala",
