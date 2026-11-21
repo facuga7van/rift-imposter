@@ -1619,6 +1619,17 @@
   text-transform: uppercase;
 }
 
+/* Va DESPUES de la regla base a proposito: el bloque @container de arriba
+   queda pisado por `.rules h2` (misma especificidad, aparece antes). Con el
+   texto al 125% la palabra mas larga de un titular ("Frequently") no entra en
+   el ancho util y empujaba la pagina de costado. Umbral bajo para no tocar
+   los titulares en celulares normales. */
+@container rules (max-width: 18rem) {
+  .rules h2 {
+    font-size: 1.625rem;
+  }
+}
+
 .rules h3 {
   font-family: var(--font-display), var(--font-sans), sans-serif;
   font-variation-settings: "wdth" 112;
