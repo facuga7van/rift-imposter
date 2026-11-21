@@ -164,6 +164,7 @@ const en = {
     wasImpostor: "impostor",
     next: "Next round",
     table: "See the scores",
+    seeWinner: "See the winner",
     /** Votos recibidos, al lado del nombre. Solo en el modo online. */
     votes: (n: number) => (n === 1 ? "1 vote" : `${n} votes`),
   },
@@ -187,6 +188,30 @@ const en = {
     reset: "Reset the game",
     resetConfirm: "Sure? Tap again",
     resetNote: "Tap twice: the second tap confirms",
+  },
+  winner: {
+    eyebrow: "We have a winner",
+    points: (n: number) => `${n} ${n === 1 ? "point" : "points"}`,
+    podium: "Final podium",
+    shareResult: "Share the result",
+    shareImage: "Share as image",
+    imageSaved: "Image saved",
+    imageFailed: "Couldn't make the image. Try again.",
+    newGame: "New game",
+    newGameNote: "Same players, scores back to zero",
+    shareTitle: "Rift Impostor",
+    shareText: (name: string, points: number) =>
+      `${name} won Rift Impostor with ${points} ${points === 1 ? "point" : "points"}. Think you can beat them? 🕵️`,
+    /** Textos de la imagen del resultado. */
+    card: {
+      winner: "Winner",
+      podium: "Podium",
+      pts: "pts",
+      bestImpostor: "Best impostor",
+      bestImpostorDetail: (wins: number, rounds: number) =>
+        `got away ${wins} of ${rounds} ${rounds === 1 ? "round" : "rounds"} as impostor`,
+      fileName: "rift-impostor-result.png",
+    },
   },
   rules: {
     heading: "How to play",
@@ -453,6 +478,7 @@ const es: Dict = {
     wasImpostor: "impostor",
     next: "Siguiente ronda",
     table: "Ver la tabla",
+    seeWinner: "Ver al ganador",
     votes: (n) => (n === 1 ? "1 voto" : `${n} votos`),
   },
   scores: {
@@ -476,6 +502,29 @@ const es: Dict = {
     reset: "Reiniciar la partida",
     resetConfirm: "¿Seguro? Tocá de nuevo",
     resetNote: "Tocá dos veces: el segundo toque confirma",
+  },
+  winner: {
+    eyebrow: "Ya hay ganador",
+    points: (n) => `${n} ${n === 1 ? "punto" : "puntos"}`,
+    podium: "Podio final",
+    shareResult: "Compartir el resultado",
+    shareImage: "Compartir como imagen",
+    imageSaved: "Imagen guardada",
+    imageFailed: "No pudimos armar la imagen. Probá de nuevo.",
+    newGame: "Nueva partida",
+    newGameNote: "Los mismos jugadores, puntajes en cero",
+    shareTitle: "Rift Impostor",
+    shareText: (name, points) =>
+      `Ganó ${name} en Rift Impostor con ${points} ${points === 1 ? "punto" : "puntos"}. ¿Te animás? 🕵️`,
+    card: {
+      winner: "Ganador",
+      podium: "Podio",
+      pts: "pts",
+      bestImpostor: "Mejor impostor",
+      bestImpostorDetail: (wins, rounds) =>
+        `zafó ${wins} de ${rounds} ${rounds === 1 ? "ronda" : "rondas"} como impostor`,
+      fileName: "rift-impostor-resultado.png",
+    },
   },
   rules: {
     heading: "Cómo se juega",

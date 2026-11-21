@@ -5,6 +5,7 @@ import {
   applyDeltas,
   createRound,
   scoreRound,
+  TARGET_POINTS,
   type Outcome,
   type Player,
   type PlayerStats,
@@ -14,6 +15,7 @@ import { ONLINE_PATH, dict, type Lang } from "@/lib/i18n";
 import { usePersistentState } from "@/lib/storage";
 import { Clues } from "./screens/Clues";
 import { Deal } from "./screens/Deal";
+import { Winner } from "./screens/Winner";
 import { Reveal } from "./screens/Reveal";
 import { Scoreboard } from "./screens/Scoreboard";
 import { Shell } from "./Shell";
@@ -21,7 +23,7 @@ import { Setup } from "./screens/Setup";
 import { Vote } from "./screens/Vote";
 import styles from "./game.module.css";
 
-type Phase = "setup" | "deal" | "clues" | "vote" | "reveal" | "scores";
+type Phase = "setup" | "deal" | "clues" | "vote" | "reveal" | "scores" | "winner";
 
 /** Ids fijos, no aleatorios: si fueran UUID el server y el cliente generarian
  *  distintos y React se quejaria al hidratar. */
@@ -134,6 +136,12 @@ export function Game({ lang }: { lang: Lang }) {
 
   const openScores = () => patch({ phase: "scores", beforeScores: phase });
   const openSetup = () => patch({ phase: "setup" });
+  const hasWinner = Object.values(stats.value).some((s) => s.points >= TARGET_POINTS);
+  /** Partida nueva con los mismos jugadores: lo mismo que el reset de la tabla, y a armar. */
+  const newGame = () => {
+    stats.reset();
+    patch({ phase: "setup", beforeScores: "setup", round: null, outcome: null, deltas: {} });
+  };
 
   const ready = players.hydrated && session.hydrated && settings.hydrated;
 
@@ -169,7 +177,7 @@ export function Game({ lang }: { lang: Lang }) {
       progress={progress}
       nav={
         <>
-          {(phase === "reveal" || phase === "scores") && (
+          {(phase === "reveal" || phase === "scores" || phase === "winner") && (
             <button
               type="button"
               className={styles.navLink}
@@ -178,7 +186,7 @@ export function Game({ lang }: { lang: Lang }) {
               {t.nav.play}
             </button>
           )}
-          {phase !== "scores" && phase !== "reveal" && (
+          {phase !== "scores" && phase !== "reveal" && phase !== "winner" && (
             <button
               type="button"
               className={styles.navLink}
@@ -253,8 +261,20 @@ export function Game({ lang }: { lang: Lang }) {
               players={players.value}
               outcome={outcome}
               deltas={deltas}
-              onNextRound={() => startRound(players.value)}
+              onNextRound={hasWinner ? undefined : () => startRound(players.value)}
+              onWinner={hasWinner ? () => patch({ phase: "winner" }) : undefined}
               onScores={openScores}
+            />
+          )}
+
+          {phase === "winner" && (
+            <Winner
+              t={t}
+              lang={lang}
+              players={players.value}
+              stats={stats.value}
+              onNewGame={newGame}
+              onTable={openScores}
             />
           )}
 
@@ -267,7 +287,8 @@ export function Game({ lang }: { lang: Lang }) {
               onBack={() =>
                 patch({
                   phase:
-                    session.value.beforeScores === "scores"
+                    session.value.beforeScores === "scores" ||
+                    (session.value.beforeScores === "winner" && !hasWinner)
                       ? "setup"
                       : session.value.beforeScores,
                 })
