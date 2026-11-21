@@ -56,8 +56,6 @@ const en = {
       "play online, each on your own device. 3 to 10 players.",
     keywords: [
       "impostor game",
-      "league of legends party game",
-      "lol impostor game",
       "social deduction game",
       "chameleon game online",
       "spyfall alternative",
@@ -309,9 +307,6 @@ const es: Dict = {
       "pasa de mano u online, cada uno desde el suyo. De 3 a 10 jugadores.",
     keywords: [
       "juego del impostor",
-      "impostor lol",
-      "juego del impostor league of legends",
-      "juego impostor campeones",
       "juegos para juntadas",
       "juego de deduccion social",
       "chameleon en español",
