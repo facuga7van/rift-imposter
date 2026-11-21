@@ -1,0 +1,45 @@
+# Deploy a Cloudflare Workers en cada push a main.
+#
+# El build corre aca y no en la maquina de desarrollo: la imagen de Open Graph
+# se queda sin RAM en local. Las NEXT_PUBLIC_* son de BUILD (quedan horneadas en
+# el HTML estatico), por eso viven en las variables del repo y no en el Worker.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Gate barato: si las reglas de la sala se rompieron, no se deploya.
+      - run: npm run test:logic
+      - run: npm run test:room
+
+      - name: Build (export estatico)
+        run: npx next build
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.NEXT_PUBLIC_CF_ANALYTICS_TOKEN }}
+
+      - name: Deploy Worker
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

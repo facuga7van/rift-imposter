@@ -81,9 +81,7 @@ export function GamePage({ lang }: { lang: Lang }) {
           <p className={styles.tipBox}>{t.rules.tip}</p>
         </div>
 
-        {/* Unico canal de contacto posible sin backend: el formulario, el
-            almacenamiento y el aviso los pone GitHub. La contra es que hace
-            falta una cuenta, y por eso lo decimos antes de que toquen. */}
+        {/* Las sugerencias van a GitHub Issues. Hace falta una cuenta, y por eso lo decimos antes de que toquen. */}
         <div className={styles.rulesBlock}>
           <h3>{t.rules.feedbackHeading}</h3>
           <p>{t.rules.feedback}</p>

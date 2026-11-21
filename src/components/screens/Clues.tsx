@@ -1,17 +1,21 @@
 "use client";
 
-import type { Player, Round } from "@/lib/game";
+import type { ReactNode } from "react";
+import type { Player } from "@/lib/game";
 import type { Dict } from "@/lib/i18n";
 import styles from "../game.module.css";
 
 type Props = {
   t: Dict;
-  round: Round;
+  /** Ids en orden de pista. El primero es aleatorio a proposito. */
+  clueOrder: string[];
   players: Player[];
-  onDone: () => void;
+  /** Sin esto no hay boton: en el modo online solo avanza el anfitrion. */
+  onDone?: () => void;
+  footer?: ReactNode;
 };
 
-export function Clues({ t, round, players, onDone }: Props) {
+export function Clues({ t, clueOrder, players, onDone, footer }: Props) {
   const byId = new Map(players.map((p) => [p.id, p]));
 
   return (
@@ -23,7 +27,7 @@ export function Clues({ t, round, players, onDone }: Props) {
         </div>
 
         <ol className={styles.order}>
-          {round.clueOrder.map((id, i) =>
+          {clueOrder.map((id, i) =>
             i === 0 ? (
               /* El unico item con relleno ambar y dos lineas: hablar primero es
                  la posicion mas dificil y se sortea de nuevo cada ronda, asi
@@ -50,11 +54,16 @@ export function Clues({ t, round, players, onDone }: Props) {
         <span className={styles.note}>{t.clues.note}</span>
       </div>
 
-      <div className={styles.dock}>
-        <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={onDone}>
-          {t.clues.done}
-        </button>
-      </div>
+      {(onDone || footer) && (
+        <div className={styles.dock}>
+          {onDone && (
+            <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={onDone}>
+              {t.clues.done}
+            </button>
+          )}
+          {footer}
+        </div>
+      )}
     </>
   );
 }

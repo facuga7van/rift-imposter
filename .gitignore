@@ -11,3 +11,6 @@ next-env.d.ts
 
 # Insumo de diseño: el zip es redundante con la carpeta descomprimida
 *.zip
+
+# Estado local de wrangler dev (Durable Objects en SQLite, cache)
+.wrangler

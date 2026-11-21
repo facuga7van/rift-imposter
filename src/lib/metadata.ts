@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { dict, LANG_META, otherLang, pathFor, type Lang } from "./i18n";
+import { ONLINE_PATH, dict, LANG_META, otherLang, pathFor, type Lang } from "./i18n";
 import { SITE_URL } from "./site";
 
 /**
@@ -63,5 +63,20 @@ export function buildJsonLd(lang: Lang) {
     numberOfPlayers: { "@type": "QuantitativeValue", minValue: 3, maxValue: 10 },
     gamePlatform: lang === "es" ? "Navegador web" : "Web browser",
     isAccessibleForFree: true,
+  };
+}
+
+/** Paginas online. Heredan el layout (openGraph, imagen OG, robots); solo cambian
+ *  titulo, descripcion, canonical y hreflang. `title` pasa por el template
+ *  "%s · Rift Impostor" del layout. */
+export function buildOnlineMetadata(lang: Lang): Metadata {
+  const t = dict(lang);
+  return {
+    title: t.online.metaTitle,
+    description: t.online.metaDescription,
+    alternates: {
+      canonical: ONLINE_PATH[lang],
+      languages: { en: ONLINE_PATH.en, es: ONLINE_PATH.es, "x-default": ONLINE_PATH.en },
+    },
   };
 }
