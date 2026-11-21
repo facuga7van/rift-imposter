@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rift-impostor",
+  "main": "worker/index.ts",
+  // Si wrangler avisa que la fecha es mas nueva que la que soporta su runtime,
+  // usar la que sugiere el aviso.
+  "compatibility_date": "2026-11-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "rift.wampaland.com.ar", "custom_domain": true }],
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // Solo /api/* despierta al Worker. El resto son assets: gratis e ilimitados.
+    "run_worker_first": ["/api/*"]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "ROOM", "class_name": "Room" }]
+  },
+  // SQLite es el unico backend de Durable Objects en el plan Free.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }]
+}
