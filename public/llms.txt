@@ -1,0 +1,32 @@
+# Rift Impostor
+
+> Free social deduction party game for 3 to 10 players, played with League of Legends champions. Everyone sees the same secret champion except one player, the impostor, who has to bluff through the clues. No sign-up, nothing to install; runs in the browser.
+
+Rift Impostor is an unofficial fan project, created under Riot Games' "Legal Jibber Jabber" policy. Riot Games does not endorse or sponsor it.
+
+## How to play
+
+- Each player privately looks at their card. Everyone sees the champion except the impostor.
+- Each player says one word about the champion, in order.
+- The group votes on who the impostor is. A tie lets the impostor escape.
+- Scoring: the impostor gets 3 points if they escape, every other player gets 1 point if the impostor is voted out. First to 10 points wins.
+- Optional hint mode: the impostor is told the champion's class (mage, tank, marksman...).
+
+## Modes
+
+- Local: one phone is passed around the group.
+- Online: one player creates a room and shares the link; everyone joins from their own device. Clues and arguing happen on a voice call (for example Discord), votes are cast in the app.
+
+## English
+
+- [Home and rules](https://rift.wampaland.com.ar/): play locally, rules and FAQ
+- [Play online](https://rift.wampaland.com.ar/play): create or join a room
+
+## Español
+
+- [Inicio y reglas](https://rift.wampaland.com.ar/es): jugar en un solo celular, reglas y preguntas frecuentes
+- [Jugar online](https://rift.wampaland.com.ar/es/jugar): crear o unirse a una sala
+
+## Source
+
+- [GitHub repository](https://github.com/facuga7van/rift-imposter)
