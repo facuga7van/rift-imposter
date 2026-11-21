@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { TARGET_POINTS, rankPlayers, type Player, type PlayerStats } from "@/lib/game";
 import type { Dict } from "@/lib/i18n";
 import styles from "../game.module.css";
@@ -10,16 +10,18 @@ type Props = {
   players: Player[];
   stats: Record<string, PlayerStats>;
   roundsPlayed: number;
-  onBack: () => void;
-  onSetup: () => void;
-  onReset: () => void;
+  onBack?: () => void;
+  onSetup?: () => void;
+  onReset?: () => void;
+  /** Reemplaza el dock entero. El modo online lo usa en `end`. */
+  footer?: ReactNode;
 };
 
 /** El boton de reiniciar se convierte en "¿Seguro?" y vuelve solo. Sin modal:
  *  un dialogo a pantalla completa para borrar puntos es desproporcionado. */
 const CONFIRM_MS = 4000;
 
-export function Scoreboard({ t, players, stats, roundsPlayed, onBack, onSetup, onReset }: Props) {
+export function Scoreboard({ t, players, stats, roundsPlayed, onBack, onSetup, onReset, footer }: Props) {
   const [confirming, setConfirming] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -121,6 +123,8 @@ export function Scoreboard({ t, players, stats, roundsPlayed, onBack, onSetup, o
       </div>
 
       <div className={styles.dock}>
+        {footer ?? (
+          <>
         <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={onBack}>
           {t.scores.back}
         </button>
@@ -132,13 +136,15 @@ export function Scoreboard({ t, players, stats, roundsPlayed, onBack, onSetup, o
               setConfirming(true);
               return;
             }
-            onReset();
+            onReset?.();
             setConfirming(false);
           }}
         >
           {confirming ? t.scores.resetConfirm : t.scores.reset}
         </button>
         <span className={styles.dockNote}>{t.scores.resetNote}</span>
+          </>
+        )}
       </div>
     </>
   );

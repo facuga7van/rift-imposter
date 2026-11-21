@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { championArt } from "@/data/champions";
 import type { Outcome, Player, PlayerStats, Round } from "@/lib/game";
 import type { Dict, Lang } from "@/lib/i18n";
@@ -14,8 +15,11 @@ type Props = {
   players: Player[];
   outcome: Outcome;
   deltas: Record<string, Partial<PlayerStats>>;
-  onNextRound: () => void;
-  onScores: () => void;
+  /** Votos por jugador. Solo existe en el modo online: en el local vota la mesa a mano. */
+  tally?: Record<string, number>;
+  onNextRound?: () => void;
+  onScores?: () => void;
+  footer?: ReactNode;
 };
 
 export function Reveal({
@@ -26,8 +30,10 @@ export function Reveal({
   players,
   outcome,
   deltas,
+  tally,
   onNextRound,
   onScores,
+  footer,
 }: Props) {
   const byId = new Map(players.map((p) => [p.id, p]));
   const impostor = byId.get(round.impostorPlayerId)!;
@@ -91,7 +97,10 @@ export function Reveal({
                   className={`${styles.deltaMark} ${isImpostor && escaped ? styles.deltaMarkOn : ""}`}
                   aria-hidden="true"
                 />
-                <span className={styles.deltaName}>{p.name}</span>
+                <span className={styles.deltaName}>
+                  {p.name}
+                  {tally && ` · ${t.reveal.votes(tally[p.id] ?? 0)}`}
+                </span>
                 {isImpostor && <span className={styles.deltaTag}>{t.reveal.wasImpostor}</span>}
                 <span
                   className={`${styles.deltaValue} ${
@@ -106,18 +115,25 @@ export function Reveal({
         </ul>
       </div>
 
-      <div className={styles.dock}>
-        <button
-          type="button"
-          className={`${styles.btn} ${escaped ? styles.btnPrimary : styles.btnMint}`}
-          onClick={onNextRound}
-        >
-          {t.reveal.next}
-        </button>
-        <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={onScores}>
-          {t.reveal.table}
-        </button>
-      </div>
+      {(onNextRound || onScores || footer) && (
+        <div className={styles.dock}>
+          {onNextRound && (
+            <button
+              type="button"
+              className={`${styles.btn} ${escaped ? styles.btnPrimary : styles.btnMint}`}
+              onClick={onNextRound}
+            >
+              {t.reveal.next}
+            </button>
+          )}
+          {onScores && (
+            <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={onScores}>
+              {t.reveal.table}
+            </button>
+          )}
+          {footer}
+        </div>
+      )}
     </>
   );
 }

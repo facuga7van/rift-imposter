@@ -233,7 +233,7 @@ export function Game({ lang }: { lang: Lang }) {
           {phase === "clues" && round && (
             <Clues
               t={t}
-              round={round}
+              clueOrder={round.clueOrder}
               players={players.value}
               onDone={() => patch({ phase: "vote" })}
             />

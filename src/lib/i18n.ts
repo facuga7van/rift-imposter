@@ -149,6 +149,8 @@ const en = {
     wasImpostor: "impostor",
     next: "Next round",
     table: "See the scores",
+    /** Votos recibidos, al lado del nombre. Solo en el modo online. */
+    votes: (n: number) => (n === 1 ? "1 vote" : `${n} votes`),
   },
   scores: {
     title: "Scores",
@@ -329,6 +331,7 @@ const es: Dict = {
     wasImpostor: "impostor",
     next: "Siguiente ronda",
     table: "Ver la tabla",
+    votes: (n) => (n === 1 ? "1 voto" : `${n} votos`),
   },
   scores: {
     title: "Tabla",
