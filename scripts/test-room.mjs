@@ -488,6 +488,55 @@ for (const phase of ["deal", "clues", "vote"]) {
   check("el anfitrion la cierra con 2 de 3", t.state.phase === "reveal");
 }
 
+// ---- anfitrion ------------------------------------------------------------
+section("Anfitrion");
+{
+  const t = table();
+  const [a, b] = t.ids;
+  t.drop(a);
+  check(
+    "si el anfitrion se cae arranca la gracia",
+    t.state.hostGraceUntil === t.now + HOST_GRACE_MS && host(t) === a,
+  );
+  t.now += 10_000;
+  t.hello("tok0", "Ana");
+  check("si vuelve antes, se limpia", t.state.hostGraceUntil === null && host(t) === a);
+  t.drop(a);
+  t.now += HOST_GRACE_MS - 1;
+  t.sync();
+  check("antes de vencer sigue siendo anfitrion", host(t) === a);
+  t.now += 1;
+  t.sync();
+  check("al vencer pasa al conectado mas antiguo", host(t) === b && t.state.hostGraceUntil === null);
+  t.hello("tok0", "Ana");
+  check("el original que vuelve no lo recupera", host(t) === b);
+}
+{
+  const t = table();
+  const [a, b, c] = t.ids;
+  t.drop(c);
+  t.drop(b);
+  t.drop(a);
+  t.now += HOST_GRACE_MS;
+  t.sync();
+  check("sin nadie conectado, hostId queda null", host(t) === null);
+  t.hello("tok2", "Cami");
+  check("el proximo hello toma el rol", host(t) === c);
+}
+{
+  const t = table();
+  const [a, b] = t.ids;
+  t.send(a, { type: "leave" });
+  check("leave del anfitrion traspasa sin gracia", host(t) === b && t.state.hostGraceUntil === null);
+}
+{
+  const t = table(["Ana", "Beto", "Cami", "Dani"]);
+  const [a, b] = t.ids;
+  t.send(a, { type: "start" });
+  t.send(a, { type: "leave" });
+  check("leave del anfitrion a mitad de ronda tambien traspasa", host(t) === b);
+}
+
 // ---- resumen ---------------------------------------------------------------
 console.log(`\n${"=".repeat(52)}`);
 console.log(`${ok} checks OK, ${fails.length} fallaron`);

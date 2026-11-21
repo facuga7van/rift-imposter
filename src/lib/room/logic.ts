@@ -369,10 +369,16 @@ function apply(s: RoomState, e: RoomEvent, ctx: RoomCtx): RoomState | RoomError 
 
 /** Despues de cada evento: el rol de anfitrion siempre queda en un lugar valido. */
 function normalizeHost(s: RoomState, now: number, connected: readonly string[]): RoomState {
-  // [T11] gracia del anfitrion
-  if (s.hostId !== null && isLive(s, s.hostId)) return s;
-  const hostId = pickHost(s, connected);
-  return hostId === s.hostId && s.hostGraceUntil === null ? s : { ...s, hostId, hostGraceUntil: null };
+  // Sin anfitrion, o se fue (leave): toma el rol el conectado mas antiguo, sin gracia.
+  if (s.hostId === null || !isLive(s, s.hostId)) {
+    const hostId = pickHost(s, connected);
+    return hostId === s.hostId && s.hostGraceUntil === null ? s : { ...s, hostId, hostGraceUntil: null };
+  }
+  if (connected.includes(s.hostId)) return s.hostGraceUntil === null ? s : { ...s, hostGraceUntil: null };
+  if (s.hostGraceUntil === null) return { ...s, hostGraceUntil: now + HOST_GRACE_MS };
+  if (now < s.hostGraceUntil) return s;
+  // Vencio la gracia. Si el original vuelve despues, no lo recupera.
+  return { ...s, hostId: pickHost(s, connected, s.hostId), hostGraceUntil: null };
 }
 
 export function reduce(state: RoomState, event: RoomEvent, ctx: RoomCtx): RoomState | RoomError {
