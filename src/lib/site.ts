@@ -1,6 +1,6 @@
 /**
- * URL canonica del sitio. En Vercel se setea NEXT_PUBLIC_SITE_URL con el dominio
- * definitivo; el fallback existe para dev y para el build local.
+ * URL canonica del sitio. El fallback es el dominio de produccion (Cloudflare
+ * Workers); NEXT_PUBLIC_SITE_URL solo hace falta para publicar en otro dominio.
  */
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rift.wampaland.com.ar";
 
