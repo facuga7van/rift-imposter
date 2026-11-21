@@ -41,7 +41,13 @@ export function listNames(lang: Lang, names: string[]): string {
  * se tipa contra el. Si falta una clave o sobra, el build rompe: no hay forma de
  * publicar la app con una traduccion a medias.
  */
+/** Aviso obligatorio de la politica "Legal Jibber Jabber" de Riot: va textual en ingles. */
+export const LEGAL_EN =
+  "Rift Impostor was created under Riot Games' \"Legal Jibber Jabber\" policy using assets " +
+  "owned by Riot Games. Riot Games does not endorse or sponsor this project.";
+
 const en = {
+  legal: LEGAL_EN,
   meta: {
     title: "Rift Impostor — The impostor game with League of Legends champions",
     description:
@@ -223,8 +229,7 @@ const en = {
     sourceHeading: "Where do the champions come from?",
     source:
       "Champion data and images come from Data Dragon, Riot Games' public CDN, so the list keeps " +
-      "up with every new champion. Rift Impostor is a fan project. It isn't endorsed by Riot " +
-      "Games and doesn't reflect their views.",
+      "up with every new champion. Rift Impostor is a fan project.",
   },
   online: {
     metaTitle: "Play online",
@@ -293,6 +298,9 @@ const en = {
 export type Dict = typeof en;
 
 const es: Dict = {
+  legal:
+    "Rift Impostor fue creado bajo la política \"Legal Jibber Jabber\" de Riot Games usando " +
+    "recursos propiedad de Riot Games. Riot Games no respalda ni patrocina este proyecto.",
   meta: {
     title: "Rift Impostor — El juego del impostor con campeones del LoL",
     description:
@@ -468,8 +476,7 @@ const es: Dict = {
     sourceHeading: "¿De dónde salen los campeones?",
     source:
       "Los datos y las imágenes vienen de Data Dragon, la CDN pública de Riot Games, así que la " +
-      "lista se mantiene al día con cada campeón nuevo. Rift Impostor es un proyecto de fans, no " +
-      "está avalado por Riot Games y Riot no se hace responsable por él.",
+      "lista se mantiene al día con cada campeón nuevo. Rift Impostor es un proyecto de fans.",
   },
   online: {
     metaTitle: "Jugar online",

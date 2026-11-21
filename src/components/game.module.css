@@ -1827,3 +1827,23 @@
     display: none;
   }
 }
+
+/* ==== Aviso legal de Riot (todas las paginas) =========================== */
+
+.legalFooter {
+  max-width: 27.5rem;
+  margin: 0 auto;
+  padding: var(--s4) clamp(1rem, 5vw, 1.5rem) var(--s5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--papel-3);
+}
+
+.legalOriginal {
+  font-size: 0.6875rem;
+  opacity: 0.85;
+}

@@ -1,6 +1,7 @@
 import { Archivo, IBM_Plex_Mono, Work_Sans } from "next/font/google";
 import { buildJsonLd } from "@/lib/metadata";
-import { LANG_META, type Lang } from "@/lib/i18n";
+import { LANG_META, LEGAL_EN, dict, type Lang } from "@/lib/i18n";
+import styles from "./game.module.css";
 import { WebAnalytics } from "./WebAnalytics";
 import "@/app/globals.css";
 
@@ -44,6 +45,16 @@ export function RootHtml({ lang, children }: { lang: Lang; children: React.React
       </head>
       <body>
         {children}
+        {/* Aviso legal de Riot: en todas las paginas, y en ES con el original
+            en ingles al lado. */}
+        <footer className={styles.legalFooter}>
+          <p>{dict(lang).legal}</p>
+          {lang !== "en" && (
+            <p lang="en" className={styles.legalOriginal}>
+              {LEGAL_EN}
+            </p>
+          )}
+        </footer>
         <WebAnalytics />
       </body>
     </html>
