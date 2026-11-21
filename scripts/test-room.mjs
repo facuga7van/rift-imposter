@@ -16,6 +16,7 @@ const {
   ROOM_TTL_MS,
   cleanName,
   createRoom,
+  isExpired,
   isRoomError,
   nextAlarmAt,
   parseHello,
@@ -125,6 +126,13 @@ section("Asientos y nombres");
   t.hello("tokZ", "   ");
   check("un hello sin nombre valido no crea asiento (misma referencia)", t.state === before);
   t.now += 5;
+  const same = t.state;
+  t.hello("tok0", "Ana");
+  check("reconectar sin cambios no escribe (misma referencia)", t.state === same);
+  t.sync();
+  check("un sync sin cambios no escribe (misma referencia)", t.state === same);
+  t.hello("tok0", "ANA");
+  check("renombrarse cambiando mayusculas no choca con uno mismo", t.state.seats[0].name === "ANA");
   t.hello("tokW", "Wen");
   check("un cambio actualiza lastActivity", t.state.lastActivity === t.now);
 }
@@ -190,6 +198,9 @@ section("Lobby y ronda");
   before = t.state;
   t.send(t.ids[0], { type: "advance" });
   check("advance en vote se descarta", t.state === before);
+  before = t.state;
+  t.send(t.ids[1], { type: "cancelRound" });
+  check("cancelRound de un no-anfitrion se descarta", t.state === before);
   t.send(t.ids[0], { type: "cancelRound" });
   check(
     "cancelRound vuelve al lobby y limpia la ronda",
@@ -326,6 +337,9 @@ section("Despues del reveal");
 {
   const t = table();
   catchImpostor(t);
+  const before = t.state;
+  t.send(t.ids.find((id) => id !== host(t)), { type: "nextRound" });
+  check("nextRound de un no-anfitrion se descarta", t.state === before);
   t.send(host(t), { type: "nextRound" });
   check("nextRound con 3 conectados reparte de nuevo", t.state.phase === "deal" && t.state.round !== null);
   check(
@@ -419,6 +433,21 @@ section("Salidas y expulsiones");
   check("se borra su voto", !(victim in t.state.votes));
   check("y los votos en su contra", !(other in t.state.votes));
   check("con 3 participantes activos la ronda sigue", t.state.phase === "vote");
+  let before = t.state;
+  t.send(other, { type: "vote", target: victim });
+  check("no se puede votar a un retirado", t.state === before);
+  t.send(victim, { type: "vote", target: imp });
+  check("un retirado no vota", t.state === before);
+  const late = t.hello("tokL", "Lola");
+  before = t.state;
+  t.send(other, { type: "vote", target: late.id });
+  check("no se puede votar a uno que entro tarde", t.state === before);
+  t.send(h, { type: "vote", target: null });
+  t.send(h, { type: "closeVote" });
+  check("closeVote con 1 de 3 activos no cierra", t.state.phase === "vote");
+  t.send(other, { type: "vote", target: null });
+  t.send(h, { type: "closeVote" });
+  check("closeVote con 2 de 3 activos cierra: la mayoria es sobre los no retirados", t.state.phase === "reveal");
   const back = t.hello(`tok${t.ids.indexOf(victim)}`, "Vuelvo");
   check(
     "el expulsado puede volver a entrar como nuevo",
@@ -544,6 +573,12 @@ section("nextAlarmAt");
   check("sin gracia, la alarma es la expiracion", nextAlarmAt(t.state) === t.state.lastActivity + ROOM_TTL_MS);
   t.drop(t.ids[0]);
   check("con gracia, la alarma es la gracia", nextAlarmAt(t.state) === t.state.hostGraceUntil);
+  const idle = t.state.lastActivity + ROOM_TTL_MS;
+  check("un ms antes de las 6 h la sala no expiro", !isExpired(t.state, idle - 1));
+  check("a las 6 h sin actividad expira", isExpired(t.state, idle));
+  t.now = idle - 1;
+  t.hello("tokN", "Nico");
+  check("la actividad corre la expiracion", !isExpired(t.state, idle) && isExpired(t.state, t.now + ROOM_TTL_MS));
 }
 
 // ---- snapshot -----------------------------------------------------------
@@ -558,11 +593,13 @@ for (const roleHint of [true, false]) {
       t.send(host(t), { type: "advance" });
       t.send(crewOf(t)[0], { type: "vote", target: impostorOf(t) });
     }
+    const late = t.hello("tokL", "Lola");
     const round = t.state.round;
     const leaks = [];
     for (const seat of t.state.seats) {
       const json = JSON.stringify(snapshotFor(t.state, seat.id, t.connected));
       if (seat.id === round.impostorPlayerId && json.includes(`"${round.secret.id}"`)) leaks.push("campeon al impostor");
+      if (seat.id === late.id && json.includes(`"${round.secret.id}"`)) leaks.push("campeon al que entro tarde");
       if (json.includes("impostorPlayerId") || json.includes('"impostorId"')) leaks.push(`impostor en ${seat.name}`);
       if (json.includes("tokenHash") || t.state.seats.some((s) => json.includes(`"${s.tokenHash}"`))) {
         leaks.push(`token en ${seat.name}`);
