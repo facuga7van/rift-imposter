@@ -1,4 +1,4 @@
-import { CHAMPIONS, type Champion, type Role } from "@/data/champions";
+import { CHAMPIONS, type Champion, type Role } from "../data/champions.ts";
 
 export const MIN_PLAYERS = 3;
 export const MAX_PLAYERS = 10;

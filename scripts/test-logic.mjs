@@ -3,28 +3,12 @@
  *
  *   npm run test:logic
  *
- * game.ts no importa nada de React justamente para poder testearlo asi. Lo
- * unico que hay que puentear es el alias `@/`, que Node no resuelve: copiamos
- * los dos archivos a un temporal y reescribimos ese import. El resto del codigo
- * es byte por byte el que se publica.
+ * game.ts no importa nada de React justamente para poder testearlo asi, y usa
+ * imports relativos con extension `.ts`: Node lo corre directo, sin copiar a un
+ * temporal ni reescribir el alias `@/`.
  */
-import { mkdtempSync, copyFileSync, readFileSync, writeFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import assert from "node:assert/strict";
-
-const SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "src");
-const tmp = mkdtempSync(join(tmpdir(), "rift-logic-"));
-
-copyFileSync(join(SRC, "data", "champions.ts"), join(tmp, "champions.ts"));
-copyFileSync(join(SRC, "lib", "game.ts"), join(tmp, "game.ts"));
-writeFileSync(
-  join(tmp, "game.ts"),
-  readFileSync(join(tmp, "game.ts"), "utf8").replace("@/data/champions", "./champions.ts"),
-);
-
-const {
+import {
   createRound,
   scoreRound,
   applyDeltas,
@@ -33,8 +17,8 @@ const {
   ROLES,
   POINTS_IMPOSTOR_ESCAPES,
   POINTS_CREW_CATCHES,
-} = await import(pathToFileURL(join(tmp, "game.ts")).href);
-const { CHAMPIONS } = await import(pathToFileURL(join(tmp, "champions.ts")).href);
+} from "../src/lib/game.ts";
+import { CHAMPIONS } from "../src/data/champions.ts";
 
 let ok = 0;
 const fails = [];
@@ -150,7 +134,6 @@ check("acumula victorias de impostor", stats[imp].impostorWins === 1);
 check("acumula puntos", stats[imp].points === POINTS_IMPOSTOR_ESCAPES);
 check("el ranking ordena por puntos", rankPlayers(players, stats)[0].points === POINTS_IMPOSTOR_ESCAPES);
 
-rmSync(tmp, { recursive: true, force: true });
 
 console.log(`\n${"=".repeat(52)}`);
 console.log(`${ok} checks OK, ${fails.length} fallaron`);
